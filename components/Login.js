@@ -6,17 +6,6 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const parseJsonArray = (jsonStr) => {
-  try {
-    const parsed = JSON.parse(jsonStr);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    console.error("Failed to parse JSON:", e);
-    return [];
-  }
-};
-
-
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,11 +13,22 @@ const Login = () => {
   const [showUser, setShowUser] = useState(false);
   const [rowData, setRowData] = useState([]);
 
-  const dropdown1Json = '[{"label": "Option 1"}, {"label": "Option 2"}, {"label": "Option 3"}]';
-  const dropdown2Json = '[{"label": "Choice 1"}, {"label": "Choice 2"}, {"label": "Choice 3"}]';
 
-  const dropdown1Options = parseJsonArray(dropdown1Json);
-  const dropdown2Options = parseJsonArray(dropdown2Json);
+  const src_frmt_parms = `{
+    "dropdown1Options": [
+      {"label": "Option 1"},
+      {"label": "Option 2"},
+      {"label": "Option 3"}
+    ],
+    "dropdown2Options": [
+      {"label": "Choice 1"},
+      {"label": "Choice 2"},
+      {"label": "Choice 3"}
+    ]
+  }`;
+
+  // Parse JSON to get options for both dropdowns
+  const { dropdown1Options, dropdown2Options } = JSON.parse(src_frmt_parms);
 
   const handleSubmit = (e) => {
     setShowUser(false);
@@ -60,7 +60,6 @@ const Login = () => {
           <Dropdown.Toggle variant="success" id="dropdown-basic-1">
             Dropdown 1
           </Dropdown.Toggle>
-
           <Dropdown.Menu>
             {dropdown1Options.map((option, index) => (
               <Dropdown.Item key={index}>{option.label}</Dropdown.Item>
@@ -72,7 +71,6 @@ const Login = () => {
           <Dropdown.Toggle variant="success" id="dropdown-basic-2">
             Dropdown 2
           </Dropdown.Toggle>
-
           <Dropdown.Menu>
             {dropdown2Options.map((option, index) => (
               <Dropdown.Item key={index}>{option.label}</Dropdown.Item>
@@ -82,8 +80,8 @@ const Login = () => {
       </div>
 
       <div style={{ marginTop: 60 }}>
-        <h2>We will Test the Login Form Component</h2>
-        {showUser && (
+      <h2>We will Test the Login Form Component</h2>
+         {showUser && (
           <Alert data-testid='user' variant='success'>
             {email}
           </Alert>
