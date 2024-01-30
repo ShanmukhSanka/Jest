@@ -141,3 +141,34 @@ describe('JSON Validity Tests', () => {
 
 
 });
+
+
+describe('Option in JSON Format Test', () => {
+  const isOptionInJson = (jsonStr, optionLabel) => {
+    try {
+      const parsedArray = JSON.parse(jsonStr);
+      return parsedArray.some(item => item.label === optionLabel);
+    } catch (e) {
+      console.error("Failed to parse JSON:", e);
+      return false;
+    }
+  };
+
+  test('Returns true if "Option 1" is in JSON format', () => {
+    const jsonStr = '[{"label": "Option 1"}, {"label": "Option 2"}, {"label": "Option 3"}]';
+    const result = isOptionInJson(jsonStr, "Option 1");
+    expect(result).toBeTruthy();
+  });
+
+  test('Returns false if JSON is invalid', () => {
+    const invalidJsonStr = 'invalid JSON';
+    const result = isOptionInJson(invalidJsonStr, "Option 1");
+    expect(result).toBeFalsy();
+  });
+
+  test('Returns false if "Option 1" is not present in JSON', () => {
+    const jsonStrWithoutOption1 = '[{"label": "Option 2"}, {"label": "Option 3"}]';
+    const result = isOptionInJson(jsonStrWithoutOption1, "Option 1");
+    expect(result).toBeFalsy();
+  });
+});
