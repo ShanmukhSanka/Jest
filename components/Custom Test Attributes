@@ -1,0 +1,41 @@
+Custom Attributes for Enhancing Testability
+
+1. `data-testid`
+- **Usage**: The most common custom attribute used in testing, ideal for elements that are hard to select through other means.
+- **Example**: `<button data-testid="submit-button">Submit</button>`
+
+2. `data-role`
+- **Usage**: To specify the role of an element in the context of your application, which can be different from its semantic HTML role.
+- **Example**: `<div data-role="user-profile">...</div>`
+
+3. `data-status`
+- **Usage**: To indicate the status of elements, such as loading, active, disabled, or selected states.
+- **Example**: `<div data-status="active">Active User</div>`
+
+4. `data-type`
+- **Usage**: To denote the type or category of an element, especially useful in lists or collections of heterogeneous items.
+- **Example**: `<div data-type="admin">Admin Tools</div>`
+
+5. `data-id`
+- **Usage**: To provide a unique identifier for elements, especially when dealing with lists or tables where items have an associated ID.
+- **Example**: `<tr data-id="user-123">...</tr>`
+
+6. `data-name`
+- **Usage**: To specify a name or identifier that's more descriptive or human-readable than an ID.
+- **Example**: `<input data-name="email-input" type="email" />`
+
+7. `data-value`
+- **Usage**: To explicitly state the value of an element, which can be useful for custom components where the value isn't obvious from the text content.
+- **Example**: `<div data-value="75" data-role="progress-bar">75%</div>`
+
+8. `data-feature`
+- **Usage**: To tag elements related to a specific feature or module in your application, aiding in feature-based testing.
+- **Example**: `<button data-feature="file-upload">Upload</button>`
+
+9. `data-action`
+- **Usage**: To describe the action an interactive element performs, useful for buttons, links, or interactive icons.
+- **Example**: `<button data-action="delete-item">Delete</button>`
+
+10. `data-section`
+- **Usage**: To mark different sections of your application or page, facilitating tests that need to interact with or verify specific sections.
+- **Example**: `<section data-section="header">...</section>`
