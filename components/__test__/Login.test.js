@@ -1,8 +1,10 @@
 import React from "react";
 import Login, { validateEmail } from "../Login";
-import { render, screen } from "@testing-library/react";
+import { render, screen , fireEvent,waitFor,within} from "@testing-library/react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
+import '@testing-library/jest-dom/extend-expect';
+
 
 describe("Test the Login Component with Dropdowns", () => {
   test("render the login form with two submit buttons and two dropdowns", async () => {
@@ -16,20 +18,35 @@ describe("Test the Login Component with Dropdowns", () => {
     expect(dropdown2).toBeInTheDocument();
   });
 
-  test("should have dropdown options loaded", () => {
+  test("should have dropdown options loaded", async () => {
     render(<Login />);
-    const dropdown1 = screen.getByText("Dropdown 1");
-    const dropdown2 = screen.getByText("Dropdown 2");
-
-    userEvent.click(dropdown1);
-    expect(screen.getByText("Option 1")).toBeInTheDocument();
-    expect(screen.getByText("Option 2")).toBeInTheDocument();
-    expect(screen.getByText("Option 3")).toBeInTheDocument();
-
-    userEvent.click(dropdown2);
-    expect(screen.getByText("Choice 1")).toBeInTheDocument();
-    expect(screen.getByText("Choice 2")).toBeInTheDocument();
-    expect(screen.getByText("Choice 3")).toBeInTheDocument();
+    const dropdown1Toggle = screen.getByText("Dropdown 1"); // Ensure this matches the text or aria-label of the dropdown
+    const dropdown2Toggle = screen.getByText("Dropdown 2"); // Ensure this matches as well
+  
+    // Interact with Dropdown 1 to display options
+    userEvent.click(dropdown1Toggle);
+    await waitFor(() => {
+      expect(screen.getByText("Option 1")).toBeInTheDocument();
+      expect(screen.getByText("Option 2")).toBeInTheDocument();
+      expect(screen.getByText("Option 3")).toBeInTheDocument();
+    });
+  
+    // Select an option from Dropdown 1 to enable Dropdown 2
+    userEvent.click(screen.getByText("Option 1")); // Assuming selecting this option enables Dropdown 2
+  
+    // Ensure Dropdown 2 is enabled and then interact with it
+    await waitFor(() => {
+      expect(dropdown2Toggle).not.toBeDisabled();
+    });
+  
+    userEvent.click(dropdown2Toggle);
+    
+    // Now check if the options in Dropdown 2 are loaded
+    await waitFor(() => {
+      expect(screen.getByText("Choice 1")).toBeInTheDocument();
+      expect(screen.getByText("Choice 2")).toBeInTheDocument();
+      expect(screen.getByText("Choice 3")).toBeInTheDocument();
+    });
   });
 
   test("should be failed on email validation ", () => {
@@ -170,5 +187,91 @@ describe('Option in JSON Format Test', () => {
     const jsonStrWithoutOption1 = '[{"label": "Option 2"}, {"label": "Option 3"}]';
     const result = isOptionInJson(jsonStrWithoutOption1, "Option 1");
     expect(result).toBeFalsy();
+  });
+});
+
+
+
+describe('Dropdown interactions', () => {
+  test('Dropdown 2 should have options loaded upon selection in Dropdown 1', async () => {
+    render(<Login />);
+
+    // Ensure the first dropdown toggle is clicked to show options
+    const dropdown1Toggle = await screen.findByTestId('dropdown1-toggle');
+    fireEvent.click(dropdown1Toggle);
+    const option1 = await screen.findByText('Option 1');
+    fireEvent.click(option1); // Select an option
+
+    // Ensure Dropdown 2 is enabled
+    await waitFor(() => {
+      const dropdown2Toggle = screen.getByTestId('dropdown2-toggle');
+      expect(dropdown2Toggle).not.toBeDisabled();
+    });
+
+    // Click to open Dropdown 2 and check for options
+    fireEvent.click(screen.getByTestId('dropdown2-toggle'));
+    await waitFor(() => {
+      expect(screen.getByText('Choice 1')).toBeInTheDocument();
+    });
+  });
+});
+
+describe('Dropdown interactions1', () => {
+  test('Dropdown 2 should have options loaded upon selection in Dropdown 1', async () => {
+    render(<Login />);
+
+    // Locate the toggles for both dropdowns
+    const dropdown1Toggle = screen.getByTestId('dropdown1-toggle');
+    const dropdown2Toggle = screen.getByTestId('dropdown2-toggle');
+
+    // Open the first dropdown to reveal its options
+    userEvent.click(dropdown1Toggle);
+    const optionsDropdown1 = await screen.findAllByRole('button', { name: /^Option/ });
+
+    // Select the first option from the first dropdown (assuming it enables Dropdown 2)
+    userEvent.click(optionsDropdown1[0]);
+
+    // Ensure Dropdown 2 is enabled
+    await screen.findByRole('button', { name: 'Dropdown 2' });  // This ensures it has been updated and is accessible
+
+    // Open the second dropdown and verify options
+    userEvent.click(dropdown2Toggle);
+    const optionsDropdown2 = await screen.findAllByRole('button', { name: /^Choice/ });
+
+    // Check that options are now available in the second dropdown
+    expect(optionsDropdown2.length).toBeGreaterThan(0); // Check if at least one option is available
+    expect(optionsDropdown2[0]).toHaveTextContent('Choice 1'); // Check specific content if necessary
+  });
+});
+
+describe('Generic Dropdown Interaction Tests', () => {
+  test('Interacting with Dropdown 1 enables and loads Dropdown 2', async () => {
+    render(<Login />);
+
+    // Get the dropdown toggle buttons by their test IDs
+    const dropdown1Toggle = screen.getByTestId('dropdown1-toggle');
+    const dropdown2Toggle = screen.getByTestId('dropdown2-toggle');
+
+    // Interact with the first dropdown
+    userEvent.click(dropdown1Toggle);
+
+    // Assuming we don't know the exact option names, we fetch all clickable items in the dropdown
+    const dropdown1Menu = within(screen.getByLabelText('Dropdown 1')).getAllByRole('button');
+    expect(dropdown1Menu.length).toBeGreaterThan(0); // Ensure there are options to interact with
+
+    // Click the first option in Dropdown 1
+    userEvent.click(dropdown1Menu[0]);  // This should trigger any state changes linked to Dropdown 1 interactions
+
+    // Check if Dropdown 2 is enabled after interaction with Dropdown 1
+    expect(dropdown2Toggle).toBeEnabled(); // Verify Dropdown 2 is now enabled
+
+    // Open Dropdown 2 to view its options
+    userEvent.click(dropdown2Toggle);
+
+    // Fetch all clickable items in the now opened Dropdown 2
+    const dropdown2Menu = within(screen.getByLabelText('Dropdown 2')).getAllByRole('button');
+    expect(dropdown2Menu.length).toBeGreaterThan(0); // Ensure Dropdown 2 is populated
+
+    // Optionally, interact with an option in Dropdown 2 if necessary for further actions
   });
 });
