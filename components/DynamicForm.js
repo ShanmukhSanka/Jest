@@ -27,6 +27,38 @@ const DynamicForm = observer(({ formState, setFormState, validationErrors, setVa
 
     const renderInputField = (field) => {
         const value = formState[field.accessorKey] || '';
+
+        if (field.type === 'dropdown' || field.type === 'multi-select') {
+            const options = Array.isArray(field.options) ? field.options : dropdownStore[field.options];
+
+            // Ensure options are defined and are an array
+            if (!Array.isArray(options)) {
+                console.error(`Options for field "${field.accessorKey}" are not an array or are undefined.`);
+                return null;
+            }
+
+            return (
+                <FormControl fullWidth>
+                    <InputLabel>{field.label}</InputLabel>
+                    <Select
+                        multiple={field.type === 'multi-select'}
+                        value={value}
+                        onChange={(e) => handleInputChange(field.accessorKey, e.target.value)}
+                        error={!!validationErrors[field.accessorKey]}
+                        renderValue={field.type === 'multi-select' ? (selected) => selected.join(', ') : undefined}
+                    >
+                        {options.map((option) => (
+                            <MenuItem key={option.value} value={option.value}>
+                                {field.type === 'multi-select' && <Checkbox checked={value.indexOf(option.value) > -1} />}
+                                <ListItemText primary={option.label} />
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    <div>{validationErrors[field.accessorKey]}</div>
+                </FormControl>
+            );
+        }
+
         switch (field.type) {
             case 'text':
                 return (
@@ -38,45 +70,6 @@ const DynamicForm = observer(({ formState, setFormState, validationErrors, setVa
                         error={!!validationErrors[field.accessorKey]}
                         helperText={validationErrors[field.accessorKey]}
                     />
-                );
-            case 'dropdown':
-                return (
-                    <FormControl fullWidth>
-                        <InputLabel>{field.label}</InputLabel>
-                        <Select
-                            value={value}
-                            onChange={(e) => handleInputChange(field.accessorKey, e.target.value)}
-                            error={!!validationErrors[field.accessorKey]}
-                        >
-                            {(field.options === 'faapcds' ? dropdownStore.faapcds : field.options).map((option) => (
-                                <MenuItem key={option.value} value={option.value}>
-                                    {option.label}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <div>{validationErrors[field.accessorKey]}</div>
-                    </FormControl>
-                );
-            case 'multi-select':
-                return (
-                    <FormControl fullWidth>
-                        <InputLabel>{field.label}</InputLabel>
-                        <Select
-                            multiple
-                            value={value}
-                            onChange={(e) => handleInputChange(field.accessorKey, e.target.value)}
-                            renderValue={(selected) => selected.join(', ')}
-                            error={!!validationErrors[field.accessorKey]}
-                        >
-                            {dropdownStore[field.options]?.map((option) => (
-                                <MenuItem key={option.value} value={option.value}>
-                                    <Checkbox checked={value.indexOf(option.value) > -1} />
-                                    <ListItemText primary={option.label} />
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <div>{validationErrors[field.accessorKey]}</div>
-                    </FormControl>
                 );
             case 'date':
                 return (
