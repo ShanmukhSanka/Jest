@@ -38,7 +38,7 @@ const DynamicForm = observer(({ formState, setFormState, validationErrors, setVa
             }
 
             return (
-                <FormControl fullWidth>
+                <FormControl fullWidth key={field.accessorKey}>
                     <InputLabel>{field.label}</InputLabel>
                     <Select
                         multiple={field.type === 'multi-select'}
@@ -64,6 +64,7 @@ const DynamicForm = observer(({ formState, setFormState, validationErrors, setVa
                 return (
                     <TextField
                         fullWidth
+                        key={field.accessorKey}
                         label={field.label}
                         value={value}
                         onChange={(e) => handleInputChange(field.accessorKey, e.target.value)}
@@ -75,6 +76,7 @@ const DynamicForm = observer(({ formState, setFormState, validationErrors, setVa
                 return (
                     <DatePicker
                         label={field.label}
+                        key={field.accessorKey}
                         value={value}
                         onChange={(date) => handleInputChange(field.accessorKey, date)}
                         renderInput={(params) => (
