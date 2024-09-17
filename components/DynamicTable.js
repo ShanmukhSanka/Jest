@@ -10,19 +10,17 @@ class HeaderMapper {
       S3_bkt_Key_cmbntn: 'S3 Bucket Key Combination',
       clnt_id: 'Client ID',
       domain_cd: 'Domain Code',
-      // Add more mappings as required
     };
   }
 
   // Method to get the friendly header name or return the key itself if not found
   getHeaderName(key) {
-    return this.headerMap[key] || key; // Fallback to original name if not mapped
+    return this.headerMap[key] || key;
   }
 }
 
 const extractNestedValue = (value) => {
   if (typeof value === 'object' && value !== null) {
-    // Check for different types like String, Int64, Float64 and extract their values
     return value.String || value.Int64 || value.Float64 || JSON.stringify(value);
   }
   return value;
@@ -30,6 +28,7 @@ const extractNestedValue = (value) => {
 
 const DynamicTable = ({ apiUrl }) => {
   const [data, setData] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null); // State to track selected row
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -37,12 +36,11 @@ const DynamicTable = ({ apiUrl }) => {
         const response = await axios.get(apiUrl);
         const tableData = response.data;
 
-        // Transform the data, extracting the correct value from any nested object
         const transformedData = tableData.map(item =>
           Object.fromEntries(
             Object.entries(item).map(([key, value]) => [
               key,
-              extractNestedValue(value), // Extract the correct value for each nested object
+              extractNestedValue(value),
             ])
           )
         );
@@ -54,24 +52,34 @@ const DynamicTable = ({ apiUrl }) => {
     fetchTableData();
   }, [apiUrl]);
 
-  // Create an instance of the HeaderMapper class
   const headerMapper = useMemo(() => new HeaderMapper(), []);
 
-  // Define columns with friendly names
   const columns = useMemo(() => {
     if (data.length === 0) return [];
     const columnNames = Object.keys(data[0] || {});
 
     return columnNames.map(name => ({
-      accessorKey: name, // Keep the key for data access
-      header: headerMapper.getHeaderName(name), // Use headerMapper to get friendly names
+      accessorKey: name,
+      header: headerMapper.getHeaderName(name),
     }));
   }, [data, headerMapper]);
 
   return (
     <MaterialReactTable
-      columns={columns} // Ensure columns are explicitly passed
-      data={data} // Pass transformed data
+      columns={columns}
+      data={data}
+      enableRowSelection // Enable row selection
+      muiTableBodyRowProps={({ row }) => {
+        if (!row) return {}; // Ensure row is defined
+        return {
+          onClick: () => setSelectedRow(row.index),
+          selected: selectedRow === row.index, // Track selected row
+          sx: {
+            cursor: 'pointer',
+            backgroundColor: selectedRow === row.index ? '#E0E0E0' : 'inherit', // Highlight selected row
+          },
+        };
+      }}
     />
   );
 };
