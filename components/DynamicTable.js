@@ -1,24 +1,32 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
+import { MaterialReactTable } from 'material-react-table';
 
 // Define the header mapping class
 class HeaderMapper {
   constructor() {
     this.headerMap = {
-      Aplctn_cd: 'Application Code',
+      aplctn_cd: 'Application Code',
       S3_bkt_Key_cmbntn: 'S3 Bucket Key Combination',
-      Clnt_id: 'Client ID',
-      Domain_cd: 'Domain Code',
-      // You can add more mappings as required
+      clnt_id: 'Client ID',
+      domain_cd: 'Domain Code',
+      // Add more mappings as required
     };
   }
 
   // Method to get the friendly header name or return the key itself if not found
   getHeaderName(key) {
-    return this.headerMap[key] || key;
+    return this.headerMap[key] || key; // Fallback to original name if not mapped
   }
 }
+
+const extractNestedValue = (value) => {
+  if (typeof value === 'object' && value !== null) {
+    // Check for different types like String, Int64, Float64 and extract their values
+    return value.String || value.Int64 || value.Float64 || JSON.stringify(value);
+  }
+  return value;
+};
 
 const DynamicTable = ({ apiUrl }) => {
   const [data, setData] = useState([]);
@@ -28,15 +36,16 @@ const DynamicTable = ({ apiUrl }) => {
       try {
         const response = await axios.get(apiUrl);
         const tableData = response.data;
-        console.log(tableData, 'tableData');
 
-        // Transform the data as necessary
+        // Transform the data, extracting the correct value from any nested object
         const transformedData = tableData.map(item =>
           Object.fromEntries(
-            Object.entries(item).map(([key, value]) => [key, value.String])
+            Object.entries(item).map(([key, value]) => [
+              key,
+              extractNestedValue(value), // Extract the correct value for each nested object
+            ])
           )
         );
-        console.log(transformedData, 'transformedData');
         setData(transformedData);
       } catch (error) {
         console.error('Error fetching table data:', error);
@@ -54,19 +63,15 @@ const DynamicTable = ({ apiUrl }) => {
     const columnNames = Object.keys(data[0] || {});
 
     return columnNames.map(name => ({
-      accessorKey: name,
+      accessorKey: name, // Keep the key for data access
       header: headerMapper.getHeaderName(name), // Use headerMapper to get friendly names
     }));
   }, [data, headerMapper]);
 
-  const table = useMaterialReactTable({
-    columns: columns,
-    data: data,
-  });
-
   return (
     <MaterialReactTable
-      table={table}
+      columns={columns} // Ensure columns are explicitly passed
+      data={data} // Pass transformed data
     />
   );
 };
