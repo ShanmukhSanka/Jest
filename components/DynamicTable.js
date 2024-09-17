@@ -10,12 +10,18 @@ class HeaderMapper {
       S3_bkt_Key_cmbntn: 'S3 Bucket Key Combination',
       clnt_id: 'Client ID',
       domain_cd: 'Domain Code',
+      // Only columns defined here will appear in the table
     };
   }
 
   // Method to get the friendly header name or return the key itself if not found
   getHeaderName(key) {
-    return this.headerMap[key] || key;
+    return this.headerMap[key] || null; // If the key is not in the map, return null
+  }
+
+  // Method to check if a key is present in the header map
+  isMapped(key) {
+    return this.headerMap.hasOwnProperty(key);
   }
 }
 
@@ -56,12 +62,15 @@ const DynamicTable = ({ apiUrl }) => {
 
   const columns = useMemo(() => {
     if (data.length === 0) return [];
+
     const columnNames = Object.keys(data[0] || {});
 
-    return columnNames.map(name => ({
-      accessorKey: name,
-      header: headerMapper.getHeaderName(name),
-    }));
+    return columnNames
+      .filter(name => headerMapper.isMapped(name)) // Filter out columns not in the header map
+      .map(name => ({
+        accessorKey: name,
+        header: headerMapper.getHeaderName(name), // Use headerMapper to get friendly names
+      }));
   }, [data, headerMapper]);
 
   return (
