@@ -81,37 +81,45 @@ const DynamicTable = ({ apiUrl }) => {
     }
   };
 
+  // Handle row selection change
+  const handleRowSelectionChange = (rowSelection) => {
+    // Toggle the selected row when checkbox is clicked
+    setSelectedRowIds(prevSelectedRowIds => ({
+      ...prevSelectedRowIds,
+      ...rowSelection,
+    }));
+  };
+
   return (
-    <>
-      {/* Add a Delete button */}
+    <div style={{ position: 'relative' }}>
+      {/* Add a Delete button aligned to the left */}
       <Button
         variant="contained"
-        color={Object.keys(selectedRowIds).length>0?'error':'secondary'}
+        color="secondary"
         startIcon={<DeleteIcon />} // Delete icon
         onClick={handleDelete} // Call delete handler on click
         disabled={Object.keys(selectedRowIds).length === 0} // Disable button if no rows are selected
-        style={{ marginBottom: '10px' }}
+        style={{
+          position: 'absolute', // Fix the position
+          left: '0', // Align to the left
+          top: '0', // Fix to the top
+          marginBottom: '10px',
+        }}
       >
         Delete
       </Button>
 
-      {/* Material React Table */}
-      <MaterialReactTable
-        columns={columns}
-        data={data}
-        enableRowSelection // Enable row selection with checkboxes
-        onRowSelectionChange={setSelectedRowIds} // Track selected rows automatically
-        state={{ selectedRowIds }} // Provide the selected row state
-        getRowId={(row) => row.index} // Ensure proper row indexing
-        muiTableBodyRowProps={({ row }) => ({
-          selected: !!selectedRowIds[row.id], // Highlight selected row
-          sx: {
-            cursor: 'pointer',
-            backgroundColor: selectedRowIds[row.id] ? '#E0E0E0' : 'inherit', // Highlight selected row
-          },
-        })}
-      />
-    </>
+      <div style={{ marginTop: '50px' }}> {/* Add margin so table doesn’t overlap button */}
+        <MaterialReactTable
+          columns={columns}
+          data={data}
+          enableRowSelection // Enable row selection with checkboxes
+          onRowSelectionChange={handleRowSelectionChange} // Track selected rows automatically
+          state={{ selectedRowIds }} // Provide the selected row state
+          getRowId={(row) => row.index} // Ensure proper row indexing
+        />
+      </div>
+    </div>
   );
 };
 
