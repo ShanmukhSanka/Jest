@@ -87,7 +87,7 @@ const DynamicTable = ({ apiUrl }) => {
       <Box display="flex" justifyContent="flex-start" mb={2}>
         <Button
           variant="contained"
-          color="secondary"
+          color="error" // Set the delete button to red
           startIcon={<DeleteIcon />} // Delete icon
           onClick={handleDelete} // Call delete handler on click
           disabled={Object.keys(selectedRowIds).length === 0} // Disable button if no rows are selected
@@ -101,7 +101,9 @@ const DynamicTable = ({ apiUrl }) => {
         columns={columns}
         data={data}
         enableRowSelection // Enable row selection with checkboxes
-        onRowSelectionChange={setSelectedRowIds} // Track selected rows automatically
+        onRowSelectionChange={({ selectedRowIds }) => {
+          setSelectedRowIds(selectedRowIds); // Update selected row state when rows are selected/unselected
+        }}
         state={{ selectedRowIds }} // Provide the selected row state
         getRowId={(row) => row.index} // Ensure proper row indexing
       />
