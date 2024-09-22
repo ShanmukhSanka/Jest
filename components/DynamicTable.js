@@ -86,7 +86,7 @@ const DynamicTable = ({ apiUrl }) => {
       {/* Add a Delete button */}
       <Button
         variant="contained"
-        color="secondary"
+        color={Object.keys(selectedRowIds).length>0?'error':'secondary'}
         startIcon={<DeleteIcon />} // Delete icon
         onClick={handleDelete} // Call delete handler on click
         disabled={Object.keys(selectedRowIds).length === 0} // Disable button if no rows are selected
