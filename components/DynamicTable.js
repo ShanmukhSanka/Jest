@@ -33,7 +33,7 @@ const extractNestedValue = (value) => {
 
 const DynamicTable = ({ apiUrl }) => {
   const [data, setData] = useState([]);
-  const [selectedRows, setSelectedRows] = useState([]); // Track selected rows
+  const [selectedRowIds, setSelectedRowIds] = useState({}); // State to track selected row IDs
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -71,15 +71,11 @@ const DynamicTable = ({ apiUrl }) => {
       }));
   }, [data, headerMapper]);
 
-  // Handle row selection
-  const handleRowSelectionChange = (selectedRowKeys) => {
-    setSelectedRows(selectedRowKeys); // Update selected rows
-  };
-
   // Handle delete action
   const handleDelete = () => {
-    if (selectedRows.length > 0) {
-      console.log('Rows to delete:', selectedRows);
+    const selectedRowIndices = Object.keys(selectedRowIds); // Get the selected row indices
+    if (selectedRowIndices.length > 0) {
+      console.log('Rows to delete:', selectedRowIndices);
       // Logic to delete selected rows can go here
     }
   };
@@ -92,7 +88,7 @@ const DynamicTable = ({ apiUrl }) => {
         color="secondary"
         startIcon={<DeleteIcon />} // Delete icon
         onClick={handleDelete} // Call delete handler on click
-        disabled={selectedRows.length === 0} // Disable button if no rows are selected
+        disabled={Object.keys(selectedRowIds).length === 0} // Disable button if no rows are selected
         style={{ marginBottom: '10px' }}
       >
         Delete
@@ -103,21 +99,13 @@ const DynamicTable = ({ apiUrl }) => {
         columns={columns}
         data={data}
         enableRowSelection // Enable row selection
-        onRowSelectionChange={handleRowSelectionChange} // Track selected rows
+        onRowSelectionChange={setSelectedRowIds} // Automatically tracks selected row IDs
+        state={{ selectedRowIds }} // Provide the selected row state
         muiTableBodyRowProps={({ row }) => ({
-          onClick: () => {
-            const isSelected = selectedRows.includes(row.index);
-            const newSelectedRows = isSelected
-              ? selectedRows.filter(idx => idx !== row.index) // Deselect if already selected
-              : [...selectedRows, row.index]; // Select if not already selected
-            setSelectedRows(newSelectedRows);
-          },
-          selected: selectedRows.includes(row.index), // Highlight selected row
+          selected: !!selectedRowIds[row.id], // Highlight selected row
           sx: {
             cursor: 'pointer',
-            backgroundColor: selectedRows.includes(row.index)
-              ? '#E0E0E0'
-              : 'inherit', // Highlight selected row
+            backgroundColor: selectedRowIds[row.id] ? '#E0E0E0' : 'inherit', // Highlight selected row
           },
         })}
       />
