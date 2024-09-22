@@ -75,8 +75,9 @@ const DynamicTable = ({ apiUrl }) => {
   const handleDelete = () => {
     const selectedRowIndices = Object.keys(selectedRowIds); // Get the selected row indices
     if (selectedRowIndices.length > 0) {
-      console.log('Rows to delete:', selectedRowIndices);
-      // Logic to delete selected rows can go here
+      const remainingData = data.filter((_, index) => !selectedRowIndices.includes(index.toString())); // Filter out selected rows
+      setData(remainingData); // Update the table with remaining rows
+      setSelectedRowIds({}); // Clear the selection after deletion
     }
   };
 
@@ -101,6 +102,14 @@ const DynamicTable = ({ apiUrl }) => {
         enableRowSelection // Enable row selection with checkboxes
         onRowSelectionChange={setSelectedRowIds} // Track selected rows automatically
         state={{ selectedRowIds }} // Provide the selected row state
+        getRowId={(row) => row.index} // Ensure proper row indexing
+        muiTableBodyRowProps={({ row }) => ({
+          selected: !!selectedRowIds[row.id], // Highlight selected row
+          sx: {
+            cursor: 'pointer',
+            backgroundColor: selectedRowIds[row.id] ? '#E0E0E0' : 'inherit', // Highlight selected row
+          },
+        })}
       />
     </>
   );
