@@ -33,7 +33,7 @@ const extractNestedValue = (value) => {
 
 const DynamicTable = ({ apiUrl }) => {
   const [data, setData] = useState([]);
-  const [selectedRowIds, setSelectedRowIds] = useState({}); // State to track selected row IDs
+  const [selectedRowIds, setSelectedRowIds] = useState({}); // Track selected row IDs
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -98,16 +98,9 @@ const DynamicTable = ({ apiUrl }) => {
       <MaterialReactTable
         columns={columns}
         data={data}
-        enableRowSelection // Enable row selection
-        onRowSelectionChange={setSelectedRowIds} // Automatically tracks selected row IDs
+        enableRowSelection // Enable row selection with checkboxes
+        onRowSelectionChange={setSelectedRowIds} // Track selected rows automatically
         state={{ selectedRowIds }} // Provide the selected row state
-        muiTableBodyRowProps={({ row }) => ({
-          selected: !!selectedRowIds[row.id], // Highlight selected row
-          sx: {
-            cursor: 'pointer',
-            backgroundColor: selectedRowIds[row.id] ? '#E0E0E0' : 'inherit', // Highlight selected row
-          },
-        })}
       />
     </>
   );
