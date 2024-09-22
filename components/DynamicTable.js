@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { MaterialReactTable } from 'material-react-table';
+import { Button } from '@mui/material'; // Material UI Button
+import DeleteIcon from '@mui/icons-material/Delete'; // Delete Icon
 
 // Define the header mapping class
 class HeaderMapper {
@@ -10,16 +12,13 @@ class HeaderMapper {
       S3_bkt_Key_cmbntn: 'S3 Bucket Key Combination',
       clnt_id: 'Client ID',
       domain_cd: 'Domain Code',
-      // Only columns defined here will appear in the table
     };
   }
 
-  // Method to get the friendly header name or return the key itself if not found
   getHeaderName(key) {
-    return this.headerMap[key] || null; // If the key is not in the map, return null
+    return this.headerMap[key] || key;
   }
 
-  // Method to check if a key is present in the header map
   isMapped(key) {
     return this.headerMap.hasOwnProperty(key);
   }
@@ -34,7 +33,7 @@ const extractNestedValue = (value) => {
 
 const DynamicTable = ({ apiUrl }) => {
   const [data, setData] = useState([]);
-  const [selectedRow, setSelectedRow] = useState(null); // State to track selected row
+  const [selectedRows, setSelectedRows] = useState([]); // Track selected rows
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -62,34 +61,67 @@ const DynamicTable = ({ apiUrl }) => {
 
   const columns = useMemo(() => {
     if (data.length === 0) return [];
-
     const columnNames = Object.keys(data[0] || {});
 
     return columnNames
-      .filter(name => headerMapper.isMapped(name)) // Filter out columns not in the header map
+      .filter(name => headerMapper.isMapped(name))
       .map(name => ({
         accessorKey: name,
-        header: headerMapper.getHeaderName(name), // Use headerMapper to get friendly names
+        header: headerMapper.getHeaderName(name),
       }));
   }, [data, headerMapper]);
 
+  // Handle row selection
+  const handleRowSelectionChange = (selectedRowKeys) => {
+    setSelectedRows(selectedRowKeys); // Update selected rows
+  };
+
+  // Handle delete action
+  const handleDelete = () => {
+    if (selectedRows.length > 0) {
+      console.log('Rows to delete:', selectedRows);
+      // Logic to delete selected rows can go here
+    }
+  };
+
   return (
-    <MaterialReactTable
-      columns={columns}
-      data={data}
-      enableRowSelection // Enable row selection
-      muiTableBodyRowProps={({ row }) => {
-        if (!row) return {}; // Ensure row is defined
-        return {
-          onClick: () => setSelectedRow(row.index),
-          selected: selectedRow === row.index, // Track selected row
+    <>
+      {/* Add a Delete button */}
+      <Button
+        variant="contained"
+        color="secondary"
+        startIcon={<DeleteIcon />} // Delete icon
+        onClick={handleDelete} // Call delete handler on click
+        disabled={selectedRows.length === 0} // Disable button if no rows are selected
+        style={{ marginBottom: '10px' }}
+      >
+        Delete
+      </Button>
+
+      {/* Material React Table */}
+      <MaterialReactTable
+        columns={columns}
+        data={data}
+        enableRowSelection // Enable row selection
+        onRowSelectionChange={handleRowSelectionChange} // Track selected rows
+        muiTableBodyRowProps={({ row }) => ({
+          onClick: () => {
+            const isSelected = selectedRows.includes(row.index);
+            const newSelectedRows = isSelected
+              ? selectedRows.filter(idx => idx !== row.index) // Deselect if already selected
+              : [...selectedRows, row.index]; // Select if not already selected
+            setSelectedRows(newSelectedRows);
+          },
+          selected: selectedRows.includes(row.index), // Highlight selected row
           sx: {
             cursor: 'pointer',
-            backgroundColor: selectedRow === row.index ? '#E0E0E0' : 'inherit', // Highlight selected row
+            backgroundColor: selectedRows.includes(row.index)
+              ? '#E0E0E0'
+              : 'inherit', // Highlight selected row
           },
-        };
-      }}
-    />
+        })}
+      />
+    </>
   );
 };
 
