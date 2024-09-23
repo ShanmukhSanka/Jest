@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { MaterialReactTable } from 'material-react-table';
-import { Button, Box } from '@mui/material'; // Material UI Button and Box
+import { Button } from '@mui/material'; // Material UI Button
 import DeleteIcon from '@mui/icons-material/Delete'; // Delete Icon
 
 // Define the header mapping class
@@ -33,7 +33,7 @@ const extractNestedValue = (value) => {
 
 const DynamicTable = ({ apiUrl }) => {
   const [data, setData] = useState([]);
-  const [selectedRowIds, setSelectedRowIds] = useState({}); // Ensure selectedRowIds is initialized as an empty object
+  const [selectedRowIds, setSelectedRowIds] = useState({}); // State to track selected row IDs
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -73,41 +73,43 @@ const DynamicTable = ({ apiUrl }) => {
 
   // Handle delete action
   const handleDelete = () => {
-    const selectedRowKeys = Object.keys(selectedRowIds || {}); // Ensure selectedRowIds is an object
-    if (selectedRowKeys.length > 0) {
-      const remainingData = data.filter((_, index) => !selectedRowKeys.includes(index.toString())); // Filter out selected rows
-      setData(remainingData); // Update the table with remaining rows
-      setSelectedRowIds({}); // Clear the selection after deletion
+    const selectedRowIndices = Object.keys(selectedRowIds); // Get the selected row indices
+    if (selectedRowIndices.length > 0) {
+      console.log('Rows to delete:', selectedRowIndices);
+      // Logic to delete selected rows can go here
     }
   };
 
   return (
-    <Box>
-      {/* Add a Delete button aligned to the left */}
-      <Box display="flex" justifyContent="flex-start" mb={2}>
-        <Button
-          variant="contained"
-          color="error" // Set the delete button to red
-          startIcon={<DeleteIcon />} // Delete icon
-          onClick={handleDelete} // Call delete handler on click
-          disabled={Object.keys(selectedRowIds || {}).length === 0} // Disable button if no rows are selected, ensure selectedRowIds is an object
-        >
-          Delete
-        </Button>
-      </Box>
+    <>
+      {/* Add a Delete button */}
+      <Button
+        variant="contained"
+        color="secondary"
+        startIcon={<DeleteIcon />} // Delete icon
+        onClick={handleDelete} // Call delete handler on click
+        disabled={Object.keys(selectedRowIds).length === 0} // Disable button if no rows are selected
+        style={{ marginBottom: '10px' }}
+      >
+        Delete
+      </Button>
 
       {/* Material React Table */}
       <MaterialReactTable
         columns={columns}
         data={data}
-        enableRowSelection // Enable row selection with checkboxes
-        onRowSelectionChange={({ selectedRowIds = {} }) => {
-          // Ensure selectedRowIds is always defined and is an object
-          setSelectedRowIds(selectedRowIds || {}); // Update selected row state when rows are selected/unselected
-        }}
-        state={{ selectedRowIds: selectedRowIds || {} }} // Ensure selectedRowIds is always an object when passed to the state
+        enableRowSelection // Enable row selection
+        onRowSelectionChange={setSelectedRowIds} // Automatically tracks selected row IDs
+        state={{ selectedRowIds }} // Provide the selected row state
+        muiTableBodyRowProps={({ row }) => ({
+          selected: !!selectedRowIds[row.id], // Highlight selected row
+          sx: {
+            cursor: 'pointer',
+            backgroundColor: selectedRowIds[row.id] ? '#E0E0E0' : 'inherit', // Highlight selected row
+          },
+        })}
       />
-    </Box>
+    </>
   );
 };
 
