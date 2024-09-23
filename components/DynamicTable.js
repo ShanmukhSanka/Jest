@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { MaterialReactTable } from 'material-react-table';
-import { Button } from '@mui/material';
+import { Button, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 // Define the header mapping class
@@ -99,16 +99,17 @@ const DynamicTable = ({ apiUrl }) => {
 
   return (
     <>
-      <Button
-        variant="contained"
-        color="secondary"
-        startIcon={<DeleteIcon />}
-        onClick={handleDelete}
-        disabled={Object.keys(selectedRowIds).length === 0}
-        style={{ marginBottom: '10px' }}
-      >
-        Delete
-      </Button>
+      <Box display="flex" justifyContent="flex-start" alignItems="center" mb={2}>
+        <Button
+          variant="contained"
+          color={Object.keys(selectedRowIds).length > 0 ? 'error' : 'secondary'}
+          startIcon={<DeleteIcon />}
+          onClick={handleDelete}
+          disabled={Object.keys(selectedRowIds).length === 0}
+        >
+          Delete
+        </Button>
+      </Box>
 
       <MaterialReactTable
         columns={columns}
