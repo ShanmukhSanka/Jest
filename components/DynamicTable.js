@@ -33,7 +33,7 @@ const extractNestedValue = (value) => {
 
 const DynamicTable = ({ apiUrl }) => {
   const [data, setData] = useState([]);
-  const [selectedRowIds, setSelectedRowIds] = useState({}); // Track selected row IDs, initialized as an empty object
+  const [selectedRows, setSelectedRows] = useState([]); // Track selected row IDs
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -73,11 +73,10 @@ const DynamicTable = ({ apiUrl }) => {
 
   // Handle delete action
   const handleDelete = () => {
-    const selectedRowIndices = Object.keys(selectedRowIds || {}); // Ensure selectedRowIds is an object before accessing it
-    if (selectedRowIndices.length > 0) {
-      const remainingData = data.filter((_, index) => !selectedRowIndices.includes(index.toString())); // Filter out selected rows
+    if (selectedRows.length > 0) {
+      const remainingData = data.filter((_, index) => !selectedRows.includes(index)); // Filter out selected rows
       setData(remainingData); // Update the table with remaining rows
-      setSelectedRowIds({}); // Clear the selection after deletion
+      setSelectedRows([]); // Clear the selection after deletion
     }
   };
 
@@ -90,7 +89,7 @@ const DynamicTable = ({ apiUrl }) => {
           color="error" // Set the delete button to red
           startIcon={<DeleteIcon />} // Delete icon
           onClick={handleDelete} // Call delete handler on click
-          disabled={Object.keys(selectedRowIds || {}).length === 0} // Disable button if no rows are selected
+          disabled={selectedRows.length === 0} // Disable button if no rows are selected
         >
           Delete
         </Button>
@@ -102,10 +101,11 @@ const DynamicTable = ({ apiUrl }) => {
         data={data}
         enableRowSelection // Enable row selection with checkboxes
         onRowSelectionChange={({ selectedRowIds }) => {
-          setSelectedRowIds(selectedRowIds || {}); // Ensure selectedRowIds is always an object
+          const selectedIndexes = Object.keys(selectedRowIds).map(Number); // Convert keys to indices
+          setSelectedRows(selectedIndexes); // Update selected rows with correct indices
         }}
-        state={{ selectedRowIds: selectedRowIds || {} }} // Provide the selected row state
-        getRowId={(row) => row.index} // Ensure proper row indexing
+        state={{ selectedRowIds: Object.fromEntries(selectedRows.map(index => [index, true])) }} // Map selected rows
+        getRowId={(row, index) => index} // Ensure proper row indexing
       />
     </Box>
   );
