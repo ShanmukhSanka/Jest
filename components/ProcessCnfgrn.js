@@ -24,7 +24,7 @@ function ProcessingCnfgrn() {
             <h1>Processing Config Table</h1>
             <DynamicTable 
                 apiUrl={apiUrl} 
-                onEditClick={handleEditClick}
+                onRowClick={handleEditClick}
                 renderTopToolbarCustomActions={() => (
                     <Button
                         color="primary"
@@ -32,7 +32,7 @@ function ProcessingCnfgrn() {
                         variant="contained"
                         startIcon={<EditIcon />}
                     >
-                        Edit
+                        Add New
                     </Button>
                 )}
             />
