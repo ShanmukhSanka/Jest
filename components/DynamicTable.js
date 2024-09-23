@@ -100,11 +100,11 @@ const DynamicTable = ({ apiUrl }) => {
         columns={columns}
         data={data}
         enableRowSelection // Enable row selection with checkboxes
-        onRowSelectionChange={({ selectedRowIds }) => {
+        onRowSelectionChange={({ selectedRowIds = {} }) => { // Ensure selectedRowIds is always defined
           const selectedIndexes = Object.keys(selectedRowIds).map(Number); // Convert keys to indices
           setSelectedRows(selectedIndexes); // Update selected rows with correct indices
         }}
-        state={{ selectedRowIds: Object.fromEntries(selectedRows.map(index => [index, true])) }} // Map selected rows
+        state={{ selectedRowIds: Object.fromEntries(selectedRows.map(index => [index, true])) }} // Map selected rows, ensure empty array handling
         getRowId={(row, index) => index} // Ensure proper row indexing
       />
     </Box>
