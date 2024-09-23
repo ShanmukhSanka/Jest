@@ -1,28 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { MaterialReactTable } from 'material-react-table';
-import { Button } from '@mui/material'; // Material UI Button
-import DeleteIcon from '@mui/icons-material/Delete'; // Delete Icon
+import { Button } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-// Define the header mapping class
-class HeaderMapper {
-  constructor() {
-    this.headerMap = {
-      aplctn_cd: 'Application Code',
-      S3_bkt_Key_cmbntn: 'S3 Bucket Key Combination',
-      clnt_id: 'Client ID',
-      domain_cd: 'Domain Code',
-    };
-  }
-
-  getHeaderName(key) {
-    return this.headerMap[key] || key;
-  }
-
-  isMapped(key) {
-    return this.headerMap.hasOwnProperty(key);
-  }
-}
+// HeaderMapper class remains unchanged
 
 const extractNestedValue = (value) => {
   if (typeof value === 'object' && value !== null) {
@@ -33,7 +15,7 @@ const extractNestedValue = (value) => {
 
 const DynamicTable = ({ apiUrl }) => {
   const [data, setData] = useState([]);
-  const [selectedRowIds, setSelectedRowIds] = useState({}); // State to track selected row IDs
+  const [selectedRowIds, setSelectedRowIds] = useState({});
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -71,9 +53,26 @@ const DynamicTable = ({ apiUrl }) => {
       }));
   }, [data, headerMapper]);
 
-  // Handle delete action
+  const handleRowSelectionChange = (updatedSelection) => {
+    setSelectedRowIds(prev => {
+      const newSelection = { ...prev };
+      Object.keys(updatedSelection).forEach(rowId => {
+        if (updatedSelection[rowId]) {
+          if (newSelection[rowId]) {
+            delete newSelection[rowId]; // Uncheck if already selected
+          } else {
+            newSelection[rowId] = true; // Check if not selected
+          }
+        } else {
+          delete newSelection[rowId]; // Remove from selection if unchecked
+        }
+      });
+      return newSelection;
+    });
+  };
+
   const handleDelete = () => {
-    const selectedRowIndices = Object.keys(selectedRowIds); // Get the selected row indices
+    const selectedRowIndices = Object.keys(selectedRowIds);
     if (selectedRowIndices.length > 0) {
       console.log('Rows to delete:', selectedRowIndices);
       // Logic to delete selected rows can go here
@@ -82,30 +81,31 @@ const DynamicTable = ({ apiUrl }) => {
 
   return (
     <>
-      {/* Add a Delete button */}
       <Button
         variant="contained"
         color="secondary"
-        startIcon={<DeleteIcon />} // Delete icon
-        onClick={handleDelete} // Call delete handler on click
-        disabled={Object.keys(selectedRowIds).length === 0} // Disable button if no rows are selected
+        startIcon={<DeleteIcon />}
+        onClick={handleDelete}
+        disabled={Object.keys(selectedRowIds).length === 0}
         style={{ marginBottom: '10px' }}
       >
         Delete
       </Button>
 
-      {/* Material React Table */}
       <MaterialReactTable
         columns={columns}
         data={data}
-        enableRowSelection // Enable row selection
-        onRowSelectionChange={setSelectedRowIds} // Automatically tracks selected row IDs
-        state={{ selectedRowIds }} // Provide the selected row state
+        enableRowSelection
+        onRowSelectionChange={handleRowSelectionChange}
+        state={{ rowSelection: selectedRowIds }}
         muiTableBodyRowProps={({ row }) => ({
-          selected: !!selectedRowIds[row.id], // Highlight selected row
+          onClick: () => {
+            handleRowSelectionChange({ [row.id]: !selectedRowIds[row.id] });
+          },
+          selected: !!selectedRowIds[row.id],
           sx: {
             cursor: 'pointer',
-            backgroundColor: selectedRowIds[row.id] ? '#E0E0E0' : 'inherit', // Highlight selected row
+            backgroundColor: selectedRowIds[row.id] ? '#E0E0E0' : 'inherit',
           },
         })}
       />
