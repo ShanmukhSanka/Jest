@@ -1,4 +1,4 @@
-// import React, { useState, useEffect, useMemo } from 'react';
+ // import React, { useState, useEffect, useMemo } from 'react';
 // import axios from 'axios';
 // import { MaterialReactTable } from 'material-react-table';
 // import { Button, Box } from '@mui/material';
@@ -146,7 +146,6 @@ import axios from 'axios';
 import { MaterialReactTable } from 'material-react-table';
 import { Button, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 
 // Define the header mapping class
 class HeaderMapper {
@@ -207,30 +206,13 @@ const DynamicTable = ({ apiUrl, onEditClick, renderTopToolbarCustomActions }) =>
     if (data.length === 0) return [];
     const columnNames = Object.keys(data[0] || {});
 
-    return [
-      ...columnNames
-        .filter(name => headerMapper.isMapped(name))
-        .map(name => ({
-          accessorKey: name,
-          header: headerMapper.getHeaderName(name),
-        })),
-      {
-        id: 'actions',
-        header: 'Actions',
-        Cell: ({ row }) => (
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEditClick(row.original);
-            }}
-            startIcon={<EditIcon />}
-          >
-            Edit
-          </Button>
-        ),
-      },
-    ];
-  }, [data, headerMapper, onEditClick]);
+    return columnNames
+      .filter(name => headerMapper.isMapped(name))
+      .map(name => ({
+        accessorKey: name,
+        header: headerMapper.getHeaderName(name),
+      }));
+  }, [data, headerMapper]);
 
   const handleRowSelectionChange = (updatedSelection) => {
     setSelectedRowIds(prev => {
