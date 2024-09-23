@@ -79,7 +79,7 @@ const EditDialog = observer(({ open, onClose, rowData }) => {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Edit Configuration</DialogTitle>
+      <DialogTitle>{rowData ? 'Edit' : 'Add'} Configuration</DialogTitle>
       <DialogContent>
         {[...dropdownFields, ...multiSelectFields, ...textFields].map(renderField)}
       </DialogContent>
