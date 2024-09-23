@@ -174,7 +174,7 @@ const extractNestedValue = (value) => {
   return value;
 };
 
-const DynamicTable = ({ apiUrl, onEditClick, renderTopToolbarCustomActions }) => {
+const DynamicTable = ({ apiUrl, onRowClick, renderTopToolbarCustomActions }) => {
   const [data, setData] = useState([]);
   const [selectedRowIds, setSelectedRowIds] = useState({});
 
@@ -240,6 +240,10 @@ const DynamicTable = ({ apiUrl, onEditClick, renderTopToolbarCustomActions }) =>
     }
   };
 
+  const handleRowClick = (row) => {
+    onRowClick(row.original);
+  };
+
   return (
     <>
       <Box display="flex" justifyContent="flex-start" alignItems="center" mb={2}>
@@ -261,8 +265,9 @@ const DynamicTable = ({ apiUrl, onEditClick, renderTopToolbarCustomActions }) =>
         onRowSelectionChange={handleRowSelectionChange}
         state={{ rowSelection: selectedRowIds }}
         muiTableBodyRowProps={({ row }) => ({
-          onClick: () => {
-            handleRowSelectionChange({ [row.id]: !selectedRowIds[row.id] });
+          onClick: (event) => {
+            event.stopPropagation();
+            handleRowClick(row);
           },
           selected: !!selectedRowIds[row.id],
           sx: {
