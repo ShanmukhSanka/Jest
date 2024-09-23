@@ -4,7 +4,25 @@ import { MaterialReactTable } from 'material-react-table';
 import { Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-// HeaderMapper class remains unchanged
+// Define the header mapping class
+class HeaderMapper {
+  constructor() {
+    this.headerMap = {
+      aplctn_cd: 'Application Code',
+      S3_bkt_Key_cmbntn: 'S3 Bucket Key Combination',
+      clnt_id: 'Client ID',
+      domain_cd: 'Domain Code',
+    };
+  }
+
+  getHeaderName(key) {
+    return this.headerMap[key] || key;
+  }
+
+  isMapped(key) {
+    return this.headerMap.hasOwnProperty(key);
+  }
+}
 
 const extractNestedValue = (value) => {
   if (typeof value === 'object' && value !== null) {
