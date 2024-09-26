@@ -236,3 +236,65 @@ const EditDialog = observer(({ open, onClose, rowData }) => {
 });
 
 export default EditDialog;
+
+
+
+
+
+import React, { useState } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Grid
+} from '@mui/material';
+
+const EditDialog = ({ open, handleClose, rowData, columns, onSave }) => {
+  const [editedData, setEditedData] = useState(rowData);
+
+  const handleInputChange = (key, value) => {
+    setEditedData(prevData => ({
+      ...prevData,
+      [key]: value
+    }));
+  };
+
+  const handleSave = () => {
+    onSave(editedData);
+    handleClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+      <DialogTitle>Edit Row</DialogTitle>
+      <DialogContent>
+        <Grid container spacing={2}>
+          {columns.map(column => (
+            <Grid item xs={12} sm={6} key={column.accessorKey}>
+              <TextField
+                fullWidth
+                label={column.header}
+                value={editedData[column.accessorKey] || ''}
+                onChange={(e) => handleInputChange(column.accessorKey, e.target.value)}
+                margin="normal"
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={handleSave} color="primary">
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default EditDialog;
