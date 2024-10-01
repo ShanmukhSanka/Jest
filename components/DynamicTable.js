@@ -288,8 +288,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { MaterialReactTable } from 'material-react-table';
-import { Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { Button } from '@mui/material'; // Material UI Button
+import DeleteIcon from '@mui/icons-material/Delete'; // Delete Icon
 
 // Define the header mapping class
 class HeaderMapper {
@@ -318,10 +318,9 @@ const extractNestedValue = (value) => {
   return value;
 };
 
-const DynamicTable = ({ apiUrl, onRowClick, renderTopToolbarCustomActions }) => {
+const DynamicTable = ({ apiUrl }) => {
   const [data, setData] = useState([]);
-  const [selectedRowIds, setSelectedRowIds] = useState({});
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [selectedRowIds, setSelectedRowIds] = useState({}); // State to track selected row IDs
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -359,78 +358,44 @@ const DynamicTable = ({ apiUrl, onRowClick, renderTopToolbarCustomActions }) => 
       }));
   }, [data, headerMapper]);
 
-  const handleRowSelectionChange = (updatedSelection) => {
-    setSelectedRowIds(updatedSelection);
-  };
-
+  // Handle delete action
   const handleDelete = () => {
-    const selectedRowIndices = Object.keys(selectedRowIds).filter(key => selectedRowIds[key]);
+    const selectedRowIndices = Object.keys(selectedRowIds); // Get the selected row indices
     if (selectedRowIndices.length > 0) {
-      setDeleteConfirmOpen(true);
+      console.log('Rows to delete:', selectedRowIndices);
+      // Logic to delete selected rows can go here
     }
-  };
-
-  const confirmDelete = () => {
-    const selectedRowIndices = Object.keys(selectedRowIds).filter(key => selectedRowIds[key]);
-    console.log('Deleting rows:', selectedRowIndices);
-    // Implement your delete logic here
-    setDeleteConfirmOpen(false);
-    setSelectedRowIds({});
-  };
-
-  const handleRowClick = (row) => {
-    onRowClick(row.original);
   };
 
   return (
     <>
-      <Box display="flex" justifyContent="flex-start" alignItems="center" mb={2}>
-        <Button
-          variant="contained"
-          color={Object.values(selectedRowIds).some(Boolean) ? 'error' : 'secondary'}
-          startIcon={<DeleteIcon />}
-          onClick={handleDelete}
-          disabled={!Object.values(selectedRowIds).some(Boolean)}
-        >
-          Delete
-        </Button>
-      </Box>
+      {/* Add a Delete button */}
+      <Button
+        variant="contained"
+        color="secondary"
+        startIcon={<DeleteIcon />} // Delete icon
+        onClick={handleDelete} // Call delete handler on click
+        disabled={Object.keys(selectedRowIds).length === 0} // Disable button if no rows are selected
+        style={{ marginBottom: '10px' }}
+      >
+        Delete
+      </Button>
 
+      {/* Material React Table */}
       <MaterialReactTable
         columns={columns}
         data={data}
-        enableRowSelection
-        onRowSelectionChange={handleRowSelectionChange}
-        state={{ rowSelection: selectedRowIds }}
+        enableRowSelection // Enable row selection
+        onRowSelectionChange={setSelectedRowIds} // Automatically tracks selected row IDs
+        state={{ selectedRowIds }} // Provide the selected row state
         muiTableBodyRowProps={({ row }) => ({
-          onClick: (event) => {
-            event.stopPropagation();
-            handleRowClick(row);
-          },
-          selected: !!selectedRowIds[row.id],
+          selected: !!selectedRowIds[row.id], // Highlight selected row
           sx: {
             cursor: 'pointer',
-            backgroundColor: selectedRowIds[row.id] ? '#E0E0E0' : 'inherit',
+            backgroundColor: selectedRowIds[row.id] ? '#E0E0E0' : 'inherit', // Highlight selected row
           },
         })}
-        renderTopToolbarCustomActions={renderTopToolbarCustomActions}
       />
-
-      <Dialog
-        open={deleteConfirmOpen}
-        onClose={() => setDeleteConfirmOpen(false)}
-      >
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete the selected rows?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteConfirmOpen(false)}>Cancel</Button>
-          <Button onClick={confirmDelete} color="error">Delete</Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 };
