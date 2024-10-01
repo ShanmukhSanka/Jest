@@ -282,6 +282,7 @@ const DynamicTable = ({ apiUrl }) => {
         onClose={() => setEditDialogOpen(false)}
         onSave={handleEditSave}
         rowData={editingRow}
+        headerMapper={headerMapper}
       />
     </>
   );
