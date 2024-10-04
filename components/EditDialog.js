@@ -55,6 +55,7 @@
 // export default EditDialog;
 
 
+// EditDialog.js
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -72,6 +73,7 @@ import {
 } from '@mui/material';
 import { observer } from 'mobx-react-lite';
 import portalParamStore from './portalParamStore';
+import { getFieldType, getFieldOptions } from './columnMapper';
 
 const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) => {
   const [editedData, setEditedData] = useState({});
@@ -92,9 +94,11 @@ const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) =
   };
 
   const renderField = (field, value) => {
-    switch (field) {
-      case 'aplctn_cd':
-      case 'S3_bkt_Key_cmbntn':
+    const fieldType = getFieldType(field);
+    const fieldOptions = getFieldOptions(field);
+
+    switch (fieldType) {
+      case 'text':
         return (
           <TextField
             fullWidth
@@ -104,7 +108,7 @@ const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) =
             margin="normal"
           />
         );
-      case 'clnt_id':
+      case 'dropdown':
         return (
           <FormControl fullWidth margin="normal">
             <InputLabel>{headerMapper.getHeaderName(field)}</InputLabel>
@@ -113,13 +117,13 @@ const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) =
               onChange={(e) => handleChange(field, e.target.value)}
               label={headerMapper.getHeaderName(field)}
             >
-              {portalParamStore.ownrshp_team.map((team) => (
-                <MenuItem key={team} value={team}>{team}</MenuItem>
+              {fieldOptions.map((option) => (
+                <MenuItem key={option} value={option}>{option}</MenuItem>
               ))}
             </Select>
           </FormControl>
         );
-      case 'domain_cd':
+      case 'multiselect':
         return (
           <FormControl fullWidth margin="normal">
             <InputLabel>{headerMapper.getHeaderName(field)}</InputLabel>
@@ -130,25 +134,17 @@ const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) =
               renderValue={(selected) => selected.join(', ')}
               label={headerMapper.getHeaderName(field)}
             >
-              {portalParamStore.prcsng_type.map((type) => (
-                <MenuItem key={type} value={type}>
-                  <Checkbox checked={Array.isArray(value) && value.indexOf(type) > -1} />
-                  <ListItemText primary={type} />
+              {fieldOptions.map((option) => (
+                <MenuItem key={option} value={option}>
+                  <Checkbox checked={Array.isArray(value) && value.indexOf(option) > -1} />
+                  <ListItemText primary={option} />
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         );
       default:
-        return (
-          <TextField
-            fullWidth
-            label={headerMapper.getHeaderName(field)}
-            value={value || ''}
-            onChange={(e) => handleChange(field, e.target.value)}
-            margin="normal"
-          />
-        );
+        return null;
     }
   };
 
