@@ -94,15 +94,6 @@ const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) =
   const renderField = (field, value) => {
     switch (field) {
       case 'aplctn_cd':
-        return (
-          <TextField
-            fullWidth
-            label={headerMapper.getHeaderName(field)}
-            value={value || ''}
-            onChange={(e) => handleChange(field, e.target.value)}
-            margin="normal"
-          />
-        );
       case 'S3_bkt_Key_cmbntn':
         return (
           <TextField
@@ -141,7 +132,7 @@ const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) =
             >
               {portalParamStore.prcsng_type.map((type) => (
                 <MenuItem key={type} value={type}>
-                  <Checkbox checked={value.indexOf(type) > -1} />
+                  <Checkbox checked={Array.isArray(value) && value.indexOf(type) > -1} />
                   <ListItemText primary={type} />
                 </MenuItem>
               ))}
