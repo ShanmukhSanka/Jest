@@ -55,7 +55,6 @@
 // export default EditDialog;
 
 
-// EditDialog.js
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -82,7 +81,9 @@ const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) =
     if (rowData) {
       setEditedData(rowData);
     }
-    portalParamStore.fetchReturnJobParamsfunc();
+    if (typeof portalParamStore.fetchReturnJobParamsfunc === 'function') {
+      portalParamStore.fetchReturnJobParamsfunc();
+    }
   }, [rowData]);
 
   const handleChange = (field, value) => {
@@ -153,7 +154,7 @@ const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) =
       <DialogTitle>Edit Row</DialogTitle>
       <DialogContent>
         {Object.entries(editedData).map(([field, value]) => (
-          headerMapper.isMapped(field) && (
+          headerMapper && typeof headerMapper.isMapped === 'function' && headerMapper.isMapped(field) && (
             <React.Fragment key={field}>
               {renderField(field, value)}
             </React.Fragment>
