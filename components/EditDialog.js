@@ -81,8 +81,10 @@ const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) =
     if (rowData) {
       setEditedData(rowData);
     }
-    if (typeof portalParamStore.fetchReturnJobParamsfunc === 'function') {
+    if (portalParamStore && typeof portalParamStore.fetchReturnJobParamsfunc === 'function') {
       portalParamStore.fetchReturnJobParamsfunc();
+    } else {
+      console.error('fetchReturnJobParamsfunc is not a function or portalParamStore is undefined');
     }
   }, [rowData]);
 
