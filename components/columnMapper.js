@@ -1,4 +1,3 @@
-// columnMapper.js
 import portalParamStore from './portalParamStore';
 
 export const TEXT_FIELDS = ['aplctn_cd', 'S3_bkt_Key_cmbntn'];
@@ -15,9 +14,9 @@ export const getFieldType = (fieldName) => {
 export const getFieldOptions = (fieldName) => {
   switch (fieldName) {
     case 'clnt_id':
-      return portalParamStore.ownrshp_team;
+      return portalParamStore.ownrshp_team || [];
     case 'domain_cd':
-      return portalParamStore.prcsng_type;
+      return portalParamStore.prcsng_type || [];
     default:
       return [];
   }
