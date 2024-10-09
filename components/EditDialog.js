@@ -131,13 +131,11 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Checkbox,
-  ListItemText,
 } from '@mui/material';
 import { observer } from 'mobx-react-lite';
 import portalParamStore from './portalParamStore';
 import dropdownStore from './dropdownStore';
-import { getFieldType } from './columnMapper';
+import { getFieldType, getFieldOptions } from './columnMapper';
 
 const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) => {
   const [editedData, setEditedData] = useState({});
@@ -164,27 +162,6 @@ const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) =
 
   const handleSave = () => {
     onSave(editedData);
-  };
-
-  const getFieldOptions = (field) => {
-    switch (field) {
-      case 'aplctn_cd':
-        return dropdownStore.getAppCodes();
-      case 'domain_cd':
-        return dropdownStore.getDomainCodes();
-      case 'sor_cd':
-        return dropdownStore.getSorCodes();
-      case 'prmotn_flag':
-        return portalParamStore.prmotn_flag;
-      case 'ownrshp_team':
-        return portalParamStore.ownrshp_team;
-      case 'prcsng_type':
-        return portalParamStore.prcsng_type;
-      case 'load_type':
-        return portalParamStore.load_type;
-      default:
-        return [];
-    }
   };
 
   const renderField = (field, value) => {
@@ -217,26 +194,6 @@ const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) =
             </Select>
           </FormControl>
         );
-      case 'multiselect':
-        return (
-          <FormControl fullWidth margin="normal">
-            <InputLabel>{headerMapper.getHeaderName(field)}</InputLabel>
-            <Select
-              multiple
-              value={Array.isArray(value) ? value : []}
-              onChange={(e) => handleChange(field, e.target.value)}
-              renderValue={(selected) => selected.join(', ')}
-              label={headerMapper.getHeaderName(field)}
-            >
-              {fieldOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  <Checkbox checked={Array.isArray(value) && value.indexOf(option) > -1} />
-                  <ListItemText primary={option} />
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        );
       default:
         return null;
     }
@@ -265,4 +222,3 @@ const EditDialog = observer(({ open, onClose, onSave, rowData, headerMapper }) =
 });
 
 export default EditDialog;
-
