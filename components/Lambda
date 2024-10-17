@@ -1,0 +1,190 @@
+import json
+import logging
+from sqlalchemy import create_engine, text
+import os
+from datetime import datetime
+
+# Create the SQLAlchemy engine (Assuming a MySQL or similar DB, adjust accordingly)
+DATABASE_HOST = os.getenv('DATABASE_HOST')
+DATABASE_USER = os.getenv('DATABASE_USER')
+DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD')
+DATABASE_NAME = os.getenv('DATABASE_NAME')
+
+connection_string = f'mysql+pymysql://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}/{DATABASE_NAME}'
+engine = create_engine(connection_string)
+
+# Equivalent to application.go handler
+def lambda_handler(event, context):
+    # This function will handle the POST request to /api/tokenization/metadata
+    try:
+        # Extract query params and body
+        if event['httpMethod'] == 'POST':
+            body = json.loads(event['body'])  # Assuming JSON body format
+            env = event['queryStringParameters'].get('env')
+            team_user = event['queryStringParameters'].get('teamuser')
+            upload_type = event['queryStringParameters'].get('upload_type')
+
+            # Parse and process CSV data (assuming CSV data is part of the body)
+            trimmed_records = parse_csv(body['csv_data'])  # You can adjust the CSV parsing logic here
+
+            # Get the DB connection and process the batch insert
+            query = ProcessingQuery()
+            status_response, error = query.batch_insert_tokenization_from_csv(trimmed_records, upload_type, team_user, env)
+
+            if error:
+                logging.error(f"Error in processing: {error}")
+                return {
+                    'statusCode': 500,
+                    'body': json.dumps({'error_message': str(error)})
+                }
+
+            return {
+                'statusCode': 200,
+                'body': json.dumps(status_response)
+            }
+        else:
+            return {
+                'statusCode': 405,
+                'body': json.dumps({'error_message': 'Method not allowed'})
+            }
+    except Exception as e:
+        logging.error(f"Exception: {str(e)}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error_message': 'Internal server error'})
+        }
+
+
+def parse_csv(csv_data):
+    # This function will parse CSV data from the body (adjust this logic to suit your needs)
+    records = csv_data.splitlines()  # Simple split to simulate CSV parsing
+    return [line.split(',') for line in records]  # Splitting each line into records
+
+
+class ProcessingQuery:
+    # Replicating logic from Query.go and Processing.go
+    def batch_insert_tokenization_from_csv(self, records, upload_type, team_user, env):
+        total_rows_inserted = 0
+        total_rows_updated = 0
+        failed_jobs = []
+
+        time_now = datetime.now()
+        time_format = "%Y-%m-%d %H:%M:%S"
+        date_format = "%Y-%m-%d"
+        
+        for record in records:
+            # Logic for checking if record exists (replicating your SQL queries in Go)
+            exists = engine.execute(
+                text("SELECT atrb_id FROM edl_tknztn_mtdta WHERE tbl_nm=:tbl_nm AND tknztn_prov_nm=:tknztn_prov_nm"),
+                {'tbl_nm': record[0], 'tknztn_prov_nm': record[12]}
+            ).fetchone()
+
+            if exists:
+                # Update logic (if the record already exists)
+                update_query = text(
+                    "UPDATE edl_tknztn_mtdta SET "
+                    "tbl_nm=:tbl_nm, domain_cd=:domain_cd, atrb_nm=:atrb_nm, data_type_txt=:data_type_txt, "
+                    "ctgry_txt=:ctgry_txt, tknz_in_test_ind=:tknz_in_test_ind, tknz_in_prod_ind=:tknz_in_prod_ind, "
+                    "deid_ind=:deid_ind, tknztn_element_txt=:tknztn_element_txt, tknztn_json_parms=:tknztn_json_parms, "
+                    "detoknzn_json_parms=:detoknzn_json_parms, tknztn_prov_nm=:tknztn_prov_nm, "
+                    "tknztn_udf_nm=:tknztn_udf_nm, snowflake_tknztn_udf_nm=:snowflake_tknztn_udf_nm, "
+                    "teradata_tknztn_udf_nm=:teradata_tknztn_udf_nm, detoknzn_udf_nm=:detoknzn_udf_nm, "
+                    "snowflake_detoknzn_udf_nm=:snowflake_detoknzn_udf_nm, teradata_detoknzn_udf_nm=:teradata_detoknzn_udf_nm, "
+                    "deid_element_txt=:deid_element_txt, deid_logic_txt=:deid_logic_txt, extnrl_cert_ind=:extnrl_cert_ind, "
+                    "excptn_ind=:excptn_ind, excptn_rgstd_dt=:excptn_rgstd_dt, excptn_trnntn_dt=:excptn_trnntn_dt, "
+                    "actv_flag=:actv_flag, last_updt_dte=:last_updt_dte, apprv_id=:apprv_id, ownrshp_team=:ownrshp_team, "
+                    "chg_tracking_comments=:chg_tracking_comments "
+                    "WHERE tbl_nm=:tbl_nm AND atrb_nm=:atrb_nm AND tknztn_prov_nm=:tknztn_prov_nm"
+                )
+                engine.execute(update_query, {
+                    'tbl_nm': record[0],
+                    'domain_cd': record[1],
+                    'atrb_nm': record[2],
+                    'data_type_txt': record[3],
+                    'ctgry_txt': record[4],
+                    'tknz_in_test_ind': record[5].lower(),
+                    'tknz_in_prod_ind': record[6].lower(),
+                    'deid_ind': record[7],
+                    'tknztn_element_txt': record[8],
+                    'tknztn_json_parms': record[9],
+                    'detoknzn_json_parms': record[10],
+                    'tknztn_prov_nm': record[12],
+                    'tknztn_udf_nm': record[13],
+                    'snowflake_tknztn_udf_nm': record[14],
+                    'teradata_tknztn_udf_nm': record[15],
+                    'detoknzn_udf_nm': record[16],
+                    'snowflake_detoknzn_udf_nm': record[17],
+                    'teradata_detoknzn_udf_nm': record[18],
+                    'deid_element_txt': record[19],
+                    'deid_logic_txt': record[20],
+                    'extnrl_cert_ind': record[21],
+                    'excptn_ind': record[22],
+                    'excptn_rgstd_dt': datetime.strptime(record[23], date_format),
+                    'excptn_trnntn_dt': datetime.strptime(record[24], date_format),
+                    'actv_flag': record[25],
+                    'last_updt_dte': time_now,
+                    'apprv_id': record[27],
+                    'ownrshp_team': record[28],
+                    'chg_tracking_comments': record[29]
+                })
+                total_rows_updated += 1
+            else:
+                # Insert logic (if the record does not exist)
+                insert_query = text(
+                    "INSERT INTO edl_tknztn_mtdta (aplctn_cd, tbl_nm, domain_cd, atrb_nm, data_type_txt, "
+                    "ctgry_txt, tknz_in_test_ind, tknz_in_prod_ind, deid_ind, tknztn_element_txt, "
+                    "tknztn_json_parms, detoknzn_json_parms, tknztn_prov_nm, tknztn_udf_nm, "
+                    "snowflake_tknztn_udf_nm, teradata_tknztn_udf_nm, detoknzn_udf_nm, "
+                    "snowflake_detoknzn_udf_nm, teradata_detoknzn_udf_nm, deid_element_txt, deid_logic_txt, "
+                    "extnrl_cert_ind, excptn_ind, excptn_rgstd_dt, excptn_trnntn_dt, actv_flag, creat_dte, "
+                    "last_updt_dte, apprv_id, ownrshp_team, chg_tracking_comments) "
+                    "VALUES (:aplctn_cd, :tbl_nm, :domain_cd, :atrb_nm, :data_type_txt, :ctgry_txt, "
+                    ":tknz_in_test_ind, :tknz_in_prod_ind, :deid_ind, :tknztn_element_txt, :tknztn_json_parms, "
+                    ":detoknzn_json_parms, :tknztn_prov_nm, :tknztn_udf_nm, :snowflake_tknztn_udf_nm, "
+                    ":teradata_tknztn_udf_nm, :detoknzn_udf_nm, :snowflake_detoknzn_udf_nm, :teradata_detoknzn_udf_nm, "
+                    ":deid_element_txt, :deid_logic_txt, :extnrl_cert_ind, :excptn_ind, :excptn_rgstd_dt, "
+                    ":excptn_trnntn_dt, :actv_flag, :creat_dte, :last_updt_dte, :apprv_id, :ownrshp_team, "
+                    ":chg_tracking_comments)"
+                )
+                engine.execute(insert_query, {
+                    'aplctn_cd': record[0],
+                    'tbl_nm': record[1],
+                    'domain_cd': record[2],
+                    'atrb_nm': record[3],
+                    'data_type_txt': record[4],
+                    'ctgry_txt': record[5],
+                    'tknz_in_test_ind': record[6].lower(),
+                    'tknz_in_prod_ind': record[7].lower(),
+                    'deid_ind': record[8],
+                    'tknztn_element_txt': record[9],
+                    'tknztn_json_parms': record[10],
+                    'detoknzn_json_parms': record[11],
+                    'tknztn_prov_nm': record[12],
+                    'tknztn_udf_nm': record[13],
+                    'snowflake_tknztn_udf_nm': record[14],
+                    'teradata_tknztn_udf_nm': record[15],
+                    'detoknzn_udf_nm': record[16],
+                    'snowflake_detoknzn_udf_nm': record[17],
+                    'teradata_detoknzn_udf_nm': record[18],
+                    'deid_element_txt': record[19],
+                    'deid_logic_txt': record[20],
+                    'extnrl_cert_ind': record[21],
+                    'excptn_ind': record[22],
+                    'excptn_rgstd_dt': datetime.strptime(record[23], date_format),
+                    'excptn_trnntn_dt': datetime.strptime(record[24], date_format),
+                    'actv_flag': record[25],
+                    'creat_dte': time_now,
+                    'last_updt_dte': time_now,
+                    'apprv_id': record[27],
+                    'ownrshp_team': record[28],
+                    'chg_tracking_comments': record[29]
+                })
+                total_rows_inserted += 1
+
+        status_response = f"Inserted {total_rows_inserted} records, updated {total_rows_updated} records"
+        return {
+            'RecordsAdded': total_rows_inserted,
+            'RecordsUpdated': total_rows_updated,
+            'FailedJobs': failed_jobs,
+            'Status': status_response
+        }, None
