@@ -1,0 +1,82 @@
+package main
+
+import (
+    "log"
+    "net/http"
+    "github.com/go-oauth2/oauth2/v4/manage"
+    "github.com/go-oauth2/oauth2/v4/server"
+    "github.com/go-oauth2/oauth2/v4/store"
+    "github.com/go-oauth2/oauth2/v4/models"
+    "github.com/gorilla/mux"
+)
+
+// Middleware to validate OAuth token
+func tokenValidationMiddleware(srv *server.Server) mux.MiddlewareFunc {
+    return func(next http.Handler) http.Handler {
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+            _, err := srv.ValidationBearerToken(r)
+            if err != nil {
+                http.Error(w, "Unauthorized", http.StatusUnauthorized)
+                return
+            }
+            next.ServeHTTP(w, r)
+        })
+    }
+}
+
+// Example controller function
+func BatchInsertTokenizationFromCSV() http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        // Your logic for handling the request
+        w.Write([]byte("Tokenization metadata inserted successfully"))
+    }
+}
+
+func main() {
+    // Create a new OAuth 2.0 manager
+    manager := manage.NewDefaultManager()
+
+    // Set up a memory token store to store tokens
+    manager.MustTokenStorage(store.NewMemoryTokenStore())
+
+    // Set up a client store and add a client
+    clientStore := store.NewClientStore()
+    clientStore.Set("000000", &models.Client{
+        ID:     "000000",
+        Secret: "999999",
+        Domain: "http://localhost",
+    })
+    manager.MapClientStorage(clientStore)
+
+    // Create a new OAuth 2.0 server
+    srv := server.NewServer(server.NewConfig(), manager)
+
+    // Set up the main router and subrouter for public APIs
+    myRouter := mux.NewRouter()
+    
+    // Public API subrouter with token validation middleware
+    publicAPI := myRouter.PathPrefix("/api/public").Subrouter()
+    publicAPI.Use(tokenValidationMiddleware(srv))
+    
+    // Define the public API endpoint
+    publicAPI.HandleFunc("/tokenization/metadata", BatchInsertTokenizationFromCSV()).Methods("POST")
+
+    // Handle authorization requests
+    myRouter.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
+        err := srv.HandleAuthorizeRequest(w, r)
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusBadRequest)
+        }
+    })
+
+    // Handle token requests
+    myRouter.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+        err := srv.HandleTokenRequest(w, r)
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+        }
+    })
+
+    // Start the HTTP server on port 9096
+    log.Fatal(http.ListenAndServe(":9096", myRouter))
+}
