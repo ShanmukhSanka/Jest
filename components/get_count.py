@@ -2,6 +2,7 @@ import subprocess
 import pandas as pd
 import io
 import sys
+import time  # Import time module for adding delay
 
 def check_groups(group_list):
     present_groups = []
@@ -15,6 +16,9 @@ def check_groups(group_list):
     try:
         for group in group_list:
             group_name = f"AEDL-ADFS-METADATA-{group}-ONSHR"
+            print(f"Preparing to check group: {group_name}. Waiting for 5 seconds...")
+            time.sleep(5)  # Wait for 5 seconds before running the command
+
             print(f"Checking group: {group_name}")
             try:
                 # Run the 'net group' command for each group
