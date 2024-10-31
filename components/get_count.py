@@ -2,7 +2,20 @@ import subprocess
 import pandas as pd
 import io
 import sys
-import time  # Import time module for adding delay
+import re
+import time
+
+# Define a function to extract valid users based on the pattern
+def extract_valid_users(command_output):
+    # Regular expression to match the required formats:
+    # 1. Two alphabets followed by 5 digits (e.g., AD30071)
+    # 2. Two alphabets followed by 6 digits and two alphabets (e.g., AN300404AD)
+    pattern = r'(?<![A-Za-z0-9])(\b[A-Z]{2}\d{5}\b|\b[A-Z]{2}\d{6}[A-Z]{2}\b)(?![A-Za-z0-9])'
+
+    # Find all matching users in the command output
+    matches = re.findall(pattern, command_output)
+    
+    return matches
 
 def check_groups(group_list):
     present_groups = []
@@ -35,11 +48,11 @@ def check_groups(group_list):
                 else:
                     present_groups.append(group_name)
                     
-                    # Extract the list of users from the command output
-                    user_list = [line.strip() for line in result.stdout.split('\n') if line.strip() and 'Members' not in line]
+                    # Extract valid users based on the specified pattern
+                    valid_users = extract_valid_users(result.stdout)
                     
-                    # Count users (excluding header lines)
-                    user_counts[group_name] = len(user_list) - 2  # Subtract 2 for header lines (Group name and comment)
+                    # Count valid users
+                    user_counts[group_name] = len(valid_users)
             except Exception as e:
                 print(f"Error occurred: {e}")
                 not_present_groups.append(group_name)
