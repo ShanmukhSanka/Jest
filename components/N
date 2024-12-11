@@ -1,0 +1,20 @@
+Subject: STRICT ENFORCEMENT: No More Excuses for DEV and Preprod Sync Issues
+
+Team,
+
+After wasting an entire day fixing the DEV and Preprod sync issues, I’ve had enough of these preventable setbacks. This situation was completely unacceptable and avoidable if proper Git protocols were followed.
+
+Let me make this very clear: From this point forward, I will not tolerate any deviation from the required processes. Here’s what you MUST adhere to without exception:
+	1.	Formatting and Code Standards: Commit only properly formatted and reviewed code. Sloppy work will not be excused.
+	2.	No Dummy Commits: Stop using placeholder or irrelevant commits. This is unprofessional and creates unnecessary clutter.
+	3.	Branch Sync: It is YOUR responsibility to ensure your branch is in proper sync before submitting a PR.
+
+Effective immediately:
+
+Any PRs that fail to meet these requirements will be rejected outright—no discussions, no second chances. I don’t care if the issue is minor, such as a formatting problem, or something more serious. If you submit sloppy or improperly synced work, it will be sent back.
+
+This is not up for debate. These issues have wasted enough time and effort. Moving forward, everyone is expected to take this seriously, or you will face the consequences.
+
+Let’s act like professionals and prevent these recurring mistakes.
+
+Shanmukh
