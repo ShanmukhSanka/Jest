@@ -1,0 +1,497 @@
+import React, { useEffect, useState } from 'react';
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Paper, Dialog, DialogContent, Button, Typography, Snackbar
+} from '@mui/material';
+import FullScreenDialog from '../snowflakeintake/UpdateSFAppCode';
+import DynamicComponentDialog from '../dynamicComponent/DynamicComponentDialog';
+import { baseURL } from '../utils/BaseURL';
+
+const fetchData = async (applicationCode) => {
+  try {
+    let env = "DEV";
+    const formConfigsubmiturl = `${baseURL}processing/get-sfform-config?env=${env}`;
+    const configResponse = await fetch(formConfigsubmiturl);
+    const formconfig = await configResponse.json();
+
+    const appDatasubmiturl = `${baseURL}processing/return-sf-application-appcd_dtls?aplctn_cd=${applicationCode}&env=${env}`;
+    const dataResponse = await fetch(appDatasubmiturl);
+    const applicationData = await dataResponse.json();
+
+    const approvalCheckUrl = `${baseURL}processing/is-sf-applicationcode-apvd?env=${env}&aplctn_cd=${applicationCode}`;
+    const approvalResponse = await fetch(approvalCheckUrl);
+    const approvalData = await approvalResponse.json();
+
+    return { formconfig, applicationData, approvalData };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+const TabPanel = (props) => {
+  const { children, value, index, ...other } = props;
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
+      {...other}
+      style={{ width: '100%', height: '100%' }}
+    >
+      {children}
+    </div>
+  );
+};
+
+const SFDataTabs = ({ open, onClose, applicationCode }) => {
+  const [value, setValue] = useState(0);
+  const [formConfig, setFormConfig] = useState([]);
+  const [applicationData, setApplicationData] = useState([]);
+  const [approvalData, setApprovalData] = useState(null);
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCurrentDialogOpen, setIsCurrentDialogOpen] = useState(open);
+  const [selectedApplication, setSelectedApplication] = useState(null);
+
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const [dynamicComponentName, setDynamicComponentName] = useState(null);
+  const [dynamicComponentProps, setDynamicComponentProps] = useState({});
+  const [isDynamicDialogOpen, setIsDynamicDialogOpen] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      // Notice I'm destructuring properly with the same names you returned
+      const { formconfig, applicationData, approvalData } = await fetchData(applicationCode);
+      setFormConfig(formconfig);
+      setApplicationData(applicationData);
+      setApprovalData(approvalData);
+
+      if (!applicationData) {
+        setIsDialogOpen(true);
+      }
+    };
+    loadData();
+  }, [applicationCode]);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
+  const handleEditClick = (application) => {
+    setSelectedApplication(application);
+    setIsDialogOpen(true);
+    setIsCurrentDialogOpen(false);
+  };
+
+  const handleCloseSnackbar = () => {
+    setSuccessMessage('');
+    setErrorMessage('');
+  };
+
+  const openDynamicDialog = (componentName, componentProps) => {
+    setDynamicComponentName(componentName);
+    setDynamicComponentProps(componentProps);
+    setIsDynamicDialogOpen(true);
+  };
+
+  const closeDynamicDialog = () => {
+    setIsDynamicDialogOpen(false);
+    setDynamicComponentName(null);
+    setDynamicComponentProps({});
+  };
+
+  const handleApprovalClick = async () => {
+    // Example approval logic
+    let token = localStorage.getItem('AEDLDashboardToken');
+    const env = "DEV";
+    const approveUrl = `${baseURL}insert-app-metadata?env=${env}`;
+    const approvalDataPayload = {
+      actv_flag: "y"
+    };
+
+    try {
+      const response = await fetch(approveUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(approvalDataPayload),
+      });
+      const result = await response.json();
+      console.log('Approval Response:', result);
+      if (response.ok) {
+        setSuccessMessage('Application approved successfully!');
+      } else {
+        setErrorMessage('Failed to approve application.');
+      }
+    } catch (error) {
+      console.error('Error approving application:', error);
+    }
+  };
+
+  const handleReapprovalClick = async () => {
+    // Example re-approval logic
+    let token = localStorage.getItem('AEDLDashboardToken');
+    const env = "DEV";
+    const reapproveUrl = `${baseURL}update-app-metadata?env=${env}&isitreapproval=yes`;
+    const reapprovalData = {
+      actv_flag: "y"
+    };
+
+    try {
+      const response = await fetch(reapproveUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(reapprovalData),
+      });
+      const result = await response.json();
+      console.log('Re-Approval Response:', result);
+      if (response.ok) {
+        setSuccessMessage('Application re-approved successfully!');
+      } else {
+        setErrorMessage('Failed to re-approve application.');
+      }
+    } catch (error) {
+      console.error('Error re-approving application:', error);
+    }
+  };
+
+  return (
+    <>
+      {applicationData && (
+        <Dialog
+          open={isCurrentDialogOpen}
+          onClose={onClose}
+          // Disables MUI's default maxWidth constraints so we can control width/height
+          maxWidth={false}
+          PaperProps={{
+            style: {
+              // Fixed dimensions for the dialog
+              width: '1000px',
+              height: '600px',
+              borderRadius: '8px',
+              overflow: 'hidden'
+            }
+          }}
+        >
+          {/* Dialog Title */}
+          <div
+            style={{
+              color: 'black',
+              padding: '20px',
+              display: 'flex',
+              justifyContent: 'center'
+            }}
+          >
+            <Typography variant="h4">App Code Details</Typography>
+          </div>
+
+          {/* Dialog Content */}
+          <DialogContent
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              width: '100%',
+              padding: 0,
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flex: 1,           // fills remaining space
+                overflow: 'hidden' // ensures internal scroll
+              }}
+            >
+              {/* LEFT TAB LIST */}
+              <div
+                style={{
+                  width: '250px',
+                  borderRight: '1px solid #ddd',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '10px',
+                  backgroundColor: '#f5f5f5',
+                  boxSizing: 'border-box',
+                  overflowY: 'auto'
+                }}
+              >
+                {formConfig.map((tab, index) => (
+                  <div
+                    key={index}
+                    onClick={() => setValue(index)}
+                    style={{
+                      padding: '15px',
+                      margin: '5px 0',
+                      backgroundColor: value === index ? '#1976d2' : '#1565c0',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      borderRadius: '4px',
+                      textAlign: 'center',
+                      transition: 'background-color 0.3s',
+                    }}
+                  >
+                    {tab.tabName}
+                  </div>
+                ))}
+              </div>
+
+              {/* RIGHT CONTENT (TAB PANELS + TABLE) */}
+              <div
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '10px',
+                  boxSizing: 'border-box',
+                  overflow: 'hidden'
+                }}
+              >
+                {formConfig.map((tab, index) => (
+                  <TabPanel value={value} index={index} key={index}>
+                    <TableContainer
+                      component={Paper}
+                      style={{
+                        width: '100%',
+                        height: 'calc(100% - 50px)', // leave space for bottom buttons
+                        overflow: 'auto'
+                      }}
+                    >
+                      <Table
+                        stickyHeader
+                        style={{ tableLayout: 'fixed', width: '100%' }}
+                        size="small"
+                      >
+                        <TableHead>
+                          <TableRow>
+                            {tab.fields.map((field, fieldIndex) => (
+                              <TableCell
+                                key={fieldIndex}
+                                style={{
+                                  // You can give columns a fixed width if you want even columns
+                                  // width: '150px',
+                                  fontWeight: 'bold'
+                                }}
+                              >
+                                {field.label}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {applicationData.map((item, rowIndex) => (
+                            <TableRow key={rowIndex}>
+                              {tab.fields.map((field, cellIndex) => {
+                                // Example: retrieve the field value
+                                const tabName = tab.tabName;
+                                const label = field.label;
+                                const tabData =
+                                  item.aplctn_dtls?.[tabName] &&
+                                  item.aplctn_dtls[tabName][label]
+                                    ? item.aplctn_dtls[tabName][label]
+                                    : '';
+
+                                if (field.link === 'dynamicLink') {
+                                  return (
+                                    <TableCell key={cellIndex}>
+                                      <a
+                                        style={{
+                                          cursor: 'pointer',
+                                          color: 'blue',
+                                          textDecoration: 'underline'
+                                        }}
+                                        onClick={() => {
+                                          openDynamicDialog(field.component, {
+                                            ...field.componentProps,
+                                            value: tabData
+                                          });
+                                        }}
+                                      >
+                                        {tabData}
+                                      </a>
+                                    </TableCell>
+                                  );
+                                } else {
+                                  return (
+                                    <TableCell key={cellIndex}>
+                                      {Array.isArray(tabData)
+                                        ? tabData.join(', ')
+                                        : tabData}
+                                    </TableCell>
+                                  );
+                                }
+                              })}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </TabPanel>
+                ))}
+
+                {/* BOTTOM ACTION BUTTONS */}
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: 'auto', // push to bottom
+                    gap: '16px'
+                  }}
+                >
+                  {/* Conditionally show Edit if no approval */}
+                  {!approvalData?.exists && (
+                    <Button
+                      onClick={() => handleEditClick(applicationData)}
+                      style={{
+                        backgroundColor: '#1976d2',
+                        color: 'white',
+                        borderRadius: '4px',
+                        padding: '4px 8px',
+                        fontSize: '12px',
+                        width: '80px',
+                        height: '30px',
+                        minWidth: '60px'
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  )}
+
+                  {/* Approve button (example) */}
+                  {localStorage.getItem('AEDLDashboardToken') && (
+                    <Button
+                      onClick={handleApprovalClick}
+                      style={{
+                        backgroundColor: '#1976d2',
+                        color: 'white',
+                        borderRadius: '4px',
+                        padding: '4px 8px',
+                        fontSize: '12px',
+                        width: '80px',
+                        height: '30px',
+                        minWidth: '60px'
+                      }}
+                    >
+                      Approve
+                    </Button>
+                  )}
+
+                  {/* Re-Approve button (example) */}
+                  {localStorage.getItem('AEDLDashboardToken') && (
+                    <Button
+                      onClick={handleReapprovalClick}
+                      style={{
+                        backgroundColor: '#1976d2',
+                        color: 'white',
+                        borderRadius: '4px',
+                        padding: '4px 8px',
+                        fontSize: '12px',
+                        width: '80px',
+                        height: '30px',
+                        minWidth: '60px'
+                      }}
+                    >
+                      Re-Approve
+                    </Button>
+                  )}
+
+                  {/* Close button */}
+                  <Button
+                    onClick={onClose}
+                    style={{
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                      borderRadius: '4px',
+                      padding: '4px 8px',
+                      fontSize: '12px',
+                      width: '80px',
+                      height: '30px',
+                      minWidth: '60px'
+                    }}
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* DIALOG SHOWN IF NO APPLICATION DATA */}
+      <Dialog open={isDialogOpen} onClose={() => setIsCurrentDialogOpen(false)}>
+        <DialogContent
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            padding: '20px'
+          }}
+        >
+          <Typography
+            variant="h6"
+            style={{
+              marginBottom: '20px',
+              textAlign: 'center'
+            }}
+          >
+            Application details not available
+          </Typography>
+          <Button
+            onClick={onClose}
+            variant="contained"
+            color="primary"
+            style={{
+              marginTop: '20px'
+            }}
+          >
+            OK
+          </Button>
+        </DialogContent>
+      </Dialog>
+
+      {/* FULL SCREEN DIALOG FOR EDITING */}
+      {selectedApplication && (
+        <FullScreenDialog
+          open={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          applicationData={selectedApplication}
+        />
+      )}
+
+      {/* SNACKBARS FOR SUCCESS/ERROR */}
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={successMessage}
+      />
+      <Snackbar
+        open={!!errorMessage}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={errorMessage}
+      />
+
+      {/* DYNAMIC COMPONENT DIALOG */}
+      <DynamicComponentDialog
+        open={isDynamicDialogOpen}
+        onClose={closeDynamicDialog}
+        componentName={dynamicComponentName}
+        componentProps={dynamicComponentProps}
+      />
+    </>
+  );
+};
+
+export default SFDataTabs;
