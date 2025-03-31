@@ -1,0 +1,36 @@
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from '@mui/material';
+
+const StagingDialog = () => {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(true); // Open the dialog as soon as the component mounts
+  }, []);
+
+  const handleYes = () => {
+    window.open('https://your-staging-url.com', '_blank');
+    setOpen(false);
+  };
+
+  const handleNo = () => {
+    setOpen(false);
+  };
+
+  return (
+    <Dialog open={open} onClose={handleNo}>
+      <DialogTitle>Confirmation</DialogTitle>
+      <DialogContent>
+        <Typography>
+          Do you want to create staging for the app onboarded?
+        </Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleNo}>No</Button>
+        <Button onClick={handleYes} variant="contained">Yes</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default StagingDialog;
