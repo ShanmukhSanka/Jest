@@ -1,0 +1,13 @@
+Design a clean, enterprise-grade top navigation bar exactly like the reference image.
+
+White background, no shadows or gradients, subtle 1px light-gray bottom border. Height around 64px. Use a modern sans-serif font.
+
+Left side: company logo, immediately followed by the text “AI Platform” in smaller, medium-weight muted dark gray text.
+
+Center: horizontally centered navigation links — “Capabilities”, “Marketplace”, “Developer Resources” — evenly spaced, medium weight, dark gray.
+
+Right side: right-aligned text links — “Request Access”, “Contact Us” — same font size and weight as the center links.
+
+All links are plain text (no buttons, no hamburger menu), vertically centered, minimal hover effect (slight color darkening or underline).
+
+Keep layout flat, minimal, professional, and enterprise-style with generous whitespace.
