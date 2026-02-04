@@ -1,0 +1,140 @@
+<Paper
+  elevation={0}
+  sx={{
+    width: "92%",
+    maxWidth: "1500px",
+    mx: "auto",
+    mt: 3,
+    p: { xs: 2.5, sm: 3.5, md: 4 },
+
+    // glass container
+    background: "rgba(255, 255, 255, 0.05)",
+    backdropFilter: "blur(12px)",
+    WebkitBackdropFilter: "blur(12px)",
+    borderRadius: "22px",
+    border: "1px solid rgba(255, 255, 255, 0.14)",
+    boxShadow: "0 14px 45px rgba(0,0,0,0.45)",
+
+    // IMPORTANT
+    overflow: "hidden",
+  }}
+>
+
+
+<Box
+  sx={{
+    display: "grid",
+    gap: { xs: 2, sm: 2.5, md: 3 },
+
+    // ✅ 5 cards on large screens, 3 on medium, 2 on small, 1 on mobile
+    gridTemplateColumns: {
+      xs: "1fr",
+      sm: "repeat(2, minmax(240px, 1fr))",
+      md: "repeat(3, minmax(260px, 1fr))",
+      lg: "repeat(5, minmax(240px, 1fr))",
+    },
+
+    // makes grid look “even”
+    alignItems: "stretch",
+  }}
+>
+  {cardData.map((card, index) => (
+    <Card key={index} sx={portalCardSx}>
+      ...
+    </Card>
+  ))}
+</Box>
+
+
+
+const portalCardSx = {
+  borderRadius: "18px",
+  overflow: "hidden",
+  cursor: "pointer",
+  position: "relative",
+
+  // ✅ cards grow to fill grid column
+  width: "100%",
+  minHeight: { xs: 260, sm: 300, md: 340 },  // bigger cards
+
+  // glass card look
+  background: "rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  backdropFilter: "blur(14px)",
+  WebkitBackdropFilter: "blur(14px)",
+  boxShadow: "0px 14px 40px rgba(0,0,0,0.45)",
+
+  transition: "transform 0.25s ease, box-shadow 0.25s ease, border 0.25s ease",
+
+  "&:hover": {
+    transform: "translateY(-6px)",
+    boxShadow: "0px 22px 60px rgba(0,0,0,0.65)",
+    border: "1px solid rgba(255,255,255,0.22)",
+  },
+
+  "&::before": {
+    content: '""',
+    position: "absolute",
+    inset: 0,
+    background:
+      "linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.00) 100%)",
+    pointerEvents: "none",
+  },
+};
+
+
+<CardActionArea
+  onClick={() => handleCardClick(card)}
+  sx={{
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "stretch",
+  }}
+>
+  <CardMedia
+    component="img"
+    image={card.img}
+    alt={card.title}
+    sx={{
+      height: { xs: 140, sm: 160, md: 180 }, // image grows with card
+      objectFit: "cover",
+      flexShrink: 0,
+    }}
+  />
+
+  <CardContent
+    sx={{
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      textAlign: "center",
+      px: 2,
+      py: 2.5,
+    }}
+  >
+    <Typography
+      sx={{
+        fontWeight: 700,
+        color: "rgba(255,255,255,0.92)",
+        fontSize: { xs: "1rem", sm: "1.05rem", md: "1.1rem" },
+      }}
+    >
+      {card.title}
+    </Typography>
+
+    {card.description && (
+      <Typography
+        sx={{
+          mt: 1,
+          color: "rgba(255,255,255,0.65)",
+          fontSize: "0.9rem",
+          lineHeight: 1.4,
+        }}
+      >
+        {card.description}
+      </Typography>
+    )}
+  </CardContent>
+</CardActionArea>
