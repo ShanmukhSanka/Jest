@@ -1,13 +1,32 @@
-Design a clean, enterprise-grade top navigation bar exactly like the reference image.
+Design a clean, enterprise-grade web marketplace UI that exactly matches the layout and visual style of the reference image.
 
-White background, no shadows or gradients, subtle 1px light-gray bottom border. Height around 64px. Use a modern sans-serif font.
+The page layout must consist of:
+	•	A floating search and filters panel on the left
+	•	A 2-column grid of cards on the right
 
-Left side: company logo, immediately followed by the text “AI Platform” in smaller, medium-weight muted dark gray text.
+Search & Filters panel requirements:
+	•	The panel is not a full-height sidebar or navbar
+	•	It appears as a floating card with a white background
+	•	Subtle rounded corners and a soft shadow
+	•	Positioned with padding from the page edges, visually detached from the background
+	•	Contains:
+	•	A search input at the top
+	•	Vertically stacked filter sections (Category, Vendor, Capabilities)
+	•	Minimal dropdown controls with light borders
+	•	A “Clear Filters” action at the bottom
 
-Center: horizontally centered navigation links — “Capabilities”, “Marketplace”, “Developer Resources” — evenly spaced, medium weight, dark gray.
+Grid & cards requirements:
+	•	Exactly two cards per row, same width and same height
+	•	Cards must be visually identical in design and structure
+	•	White background, rounded corners, and subtle enterprise-style shadow
+	•	Internal layout: title → tag chips → short description → “Learn more” link
+	•	Consistent padding, typography, and spacing across all cards
 
-Right side: right-aligned text links — “Request Access”, “Contact Us” — same font size and weight as the center links.
+Overall design constraints:
+	•	Neutral enterprise color palette (white, light gray, muted accents)
+	•	Professional SaaS look, similar to internal developer marketplaces
+	•	Desktop-first layout
+	•	No animations, no decorative illustrations, no experimental UI elements
+	•	Do not introduce new layouts, components, or visual styles
 
-All links are plain text (no buttons, no hamburger menu), vertically centered, minimal hover effect (slight color darkening or underline).
-
-Keep layout flat, minimal, professional, and enterprise-style with generous whitespace.
+Replicate the grid structure, card proportions, shadows, spacing, and floating filter panel behavior exactly, changing only text content if required.
