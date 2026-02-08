@@ -1,32 +1,32 @@
-Design a clean, enterprise-grade web marketplace UI that exactly matches the layout and visual style of the reference image.
+Card Layout & Structure:
+	•	Rounded rectangle card with soft shadow and subtle border
+	•	Clean white or very light gray background
+	•	Logo or icon at the top-left (agent / model / server logo)
+	•	Card title in bold (Agent Name / Model Name / Service Name)
+	•	Small provider label under the title (e.g., OpenAI, AWS, Internal, Meta)
+	•	Row of capability tags (pill-style chips):
+	•	Examples: Reasoning, Tool Use, Coding, Long Context, Multimodal
+	•	Short 1–2 line description explaining what the agent or service does
+	•	Metadata section with subtle typography:
+	•	Environment (DEV / TEST / PROD)
+	•	Agent ID / Version / Region
+	•	Clear call-to-action at the bottom:
+	•	Primary button (e.g., Explore, Open, Use Agent)
+	•	Secondary link (e.g., Learn more →)
 
-The page layout must consist of:
-	•	A floating search and filters panel on the left
-	•	A 2-column grid of cards on the right
+Visual Style:
+	•	Minimal, modern, enterprise SaaS aesthetic
+	•	Consistent spacing and alignment
+	•	Logos or icons should immediately convey identity
+	•	Tags should be color-coded but muted (no loud colors)
+	•	Typography similar to AWS / Azure portals
 
-Search & Filters panel requirements:
-	•	The panel is not a full-height sidebar or navbar
-	•	It appears as a floating card with a white background
-	•	Subtle rounded corners and a soft shadow
-	•	Positioned with padding from the page edges, visually detached from the background
-	•	Contains:
-	•	A search input at the top
-	•	Vertically stacked filter sections (Category, Vendor, Capabilities)
-	•	Minimal dropdown controls with light borders
-	•	A “Clear Filters” action at the bottom
+Tone & Feel:
+	•	Professional, scalable, cloud-native
+	•	Should not look empty even with minimal text
+	•	Cards should feel “clickable” and valuable at first glance
 
-Grid & cards requirements:
-	•	Exactly two cards per row, same width and same height
-	•	Cards must be visually identical in design and structure
-	•	White background, rounded corners, and subtle enterprise-style shadow
-	•	Internal layout: title → tag chips → short description → “Learn more” link
-	•	Consistent padding, typography, and spacing across all cards
-
-Overall design constraints:
-	•	Neutral enterprise color palette (white, light gray, muted accents)
-	•	Professional SaaS look, similar to internal developer marketplaces
-	•	Desktop-first layout
-	•	No animations, no decorative illustrations, no experimental UI elements
-	•	Do not introduce new layouts, components, or visual styles
-
-Replicate the grid structure, card proportions, shadows, spacing, and floating filter panel behavior exactly, changing only text content if required.
+Use Case:
+	•	AI Agent Marketplace
+	•	Internal Developer Portal
+	•	Model Registry / Service Catalog
