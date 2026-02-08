@@ -1,32 +1,27 @@
-Card Layout & Structure:
-	•	Rounded rectangle card with soft shadow and subtle border
-	•	Clean white or very light gray background
-	•	Logo or icon at the top-left (agent / model / server logo)
-	•	Card title in bold (Agent Name / Model Name / Service Name)
-	•	Small provider label under the title (e.g., OpenAI, AWS, Internal, Meta)
-	•	Row of capability tags (pill-style chips):
-	•	Examples: Reasoning, Tool Use, Coding, Long Context, Multimodal
-	•	Short 1–2 line description explaining what the agent or service does
-	•	Metadata section with subtle typography:
-	•	Environment (DEV / TEST / PROD)
-	•	Agent ID / Version / Region
-	•	Clear call-to-action at the bottom:
-	•	Primary button (e.g., Explore, Open, Use Agent)
-	•	Secondary link (e.g., Learn more →)
+Update the selected (active) card state so that the entire card container is visually highlighted, not just the inner content.
 
-Visual Style:
-	•	Minimal, modern, enterprise SaaS aesthetic
-	•	Consistent spacing and alignment
-	•	Logos or icons should immediately convey identity
-	•	Tags should be color-coded but muted (no loud colors)
-	•	Typography similar to AWS / Azure portals
+Requirements:
+	•	The full card bounding box must receive the selected state
+	•	No part of the highlight, border, glow, or background should be clipped at the top or sides
+	•	Selected state must respect the card’s rounded corners
+	•	Ensure the card’s hover / active elevation expands outward, not inward
 
-Tone & Feel:
-	•	Professional, scalable, cloud-native
-	•	Should not look empty even with minimal text
-	•	Cards should feel “clickable” and valuable at first glance
+Selected Card Styling:
+	•	Apply a full-card border or outline (1–2px) around the entire card
+	•	Optional subtle glow or shadow outside the card (not inside)
+	•	Slight elevation increase compared to non-selected cards
+	•	Background tint or accent should fill the entire card surface
 
-Use Case:
-	•	AI Agent Marketplace
-	•	Internal Developer Portal
-	•	Model Registry / Service Catalog
+Layout Constraints:
+	•	Parent container must allow overflow visibility
+	•	No overflow: hidden should clip the selected card’s top border or glow
+	•	Spacing between cards should account for active-state elevation
+
+Behavior:
+	•	Selected card should feel like a single, complete box
+	•	No visual truncation at the top
+	•	Works consistently across hover, focus, and selected states
+
+Overall Look:
+	•	Enterprise-grade, clean, cloud-console style (AWS / Azure-like)
+	•	Selection should be obvious but not loud
