@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS — EDA Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface-2: #1a2235;
+    --accent: #4f8cff;
+    --accent-glow: #4f8cff44;
+    --accent-warm: #6c5ce7;
+    --mint: #00e4a0;
+    --text: #e8edf5;
+    --text-dim: #7a8ba8;
+    --coral: #ff6b6b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ─── Ambient background ─── */
+  .ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .ambient::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    top: 20%; left: 30%;
+    animation: ambientFloat 12s ease-in-out infinite;
+  }
+  .ambient::after {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #6c5ce722 0%, transparent 70%);
+    bottom: 10%; right: 20%;
+    animation: ambientFloat 15s ease-in-out infinite reverse;
+  }
+  @keyframes ambientFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(40px, -30px) scale(1.05); }
+    66% { transform: translate(-20px, 20px) scale(0.95); }
+  }
+
+  .showcase { position: relative; z-index: 1; text-align: center; }
+
+  /* ─── SECTION TITLE ─── */
+  .section-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.2s;
+  }
+
+  /* ─── THE AGENT ICON ─── */
+  .agent-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.4s;
+  }
+
+  .agent-icon {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    cursor: pointer;
+  }
+
+  /* Outer orbital ring */
+  .orbit-ring {
+    position: absolute;
+    inset: -18px;
+    border-radius: 50%;
+    border: 1.5px solid transparent;
+    border-top-color: var(--accent);
+    border-right-color: var(--accent);
+    opacity: 0.4;
+    animation: orbitSpin 6s linear infinite;
+  }
+  .orbit-ring::after {
+    content: '';
+    position: absolute;
+    top: -3px; left: 50%;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+    transform: translateX(-50%);
+  }
+
+  .orbit-ring-2 {
+    position: absolute;
+    inset: -30px;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    border-bottom-color: var(--mint);
+    border-left-color: var(--mint);
+    opacity: 0.25;
+    animation: orbitSpin 10s linear infinite reverse;
+  }
+  .orbit-ring-2::after {
+    content: '';
+    position: absolute;
+    bottom: -2.5px; right: 25%;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--mint);
+    box-shadow: 0 0 10px var(--mint);
+  }
+
+  @keyframes orbitSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Core circle */
+  .agent-core {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #1a2744, #0f1b33);
+    box-shadow:
+      0 0 0 1px rgba(79, 140, 255, 0.15),
+      0 8px 32px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: box-shadow 0.4s ease;
+  }
+  .agent-icon:hover .agent-core {
+    box-shadow:
+      0 0 0 1px rgba(79, 140, 255, 0.3),
+      0 0 40px rgba(79, 140, 255, 0.15),
+      0 8px 32px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  /* Inner glow pulse */
+  .agent-core::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, var(--accent-glow) 0%, transparent 60%);
+    animation: innerPulse 3s ease-in-out infinite;
+  }
+  @keyframes innerPulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+  }
+
+  /* ─── THE FACE — humanized ─── */
+  .face {
+    position: relative;
+    z-index: 2;
+    width: 60px;
+    height: 40px;
+  }
+
+  /* Eyes */
+  .eyes {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  .eye {
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 0 14px var(--accent), 0 0 4px var(--accent);
+    animation: eyeGlow 3s ease-in-out infinite;
+  }
+  .eye::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 1.5px;
+    width: 3.5px; height: 3.5px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.9;
+  }
+  .eye.left { animation-delay: 0s; }
+  .eye.right { animation-delay: 0.15s; }
+
+  @keyframes eyeGlow {
+    0%, 100% { box-shadow: 0 0 14px var(--accent), 0 0 4px var(--accent); }
+    50% { box-shadow: 0 0 20px var(--accent), 0 0 8px var(--accent); }
+  }
+
+  /* Blink */
+  .eye {
+    animation: eyeGlow 3s ease-in-out infinite, blink 4s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 42%, 48%, 100% { transform: scaleY(1); }
+    45% { transform: scaleY(0.1); }
+  }
+
+  /* Mouth — gentle smile line that animates when "speaking" */
+  .mouth {
+    width: 20px;
+    height: 10px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .mouth-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    border: none;
+    border-bottom: 2.5px solid var(--mint);
+    border-radius: 0 0 10px 10px;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 6px var(--mint));
+    animation: mouthTalk 2.5s ease-in-out infinite;
+  }
+  @keyframes mouthTalk {
+    0%, 100% { height: 8px; width: 20px; left: 0; opacity: 0.8; }
+    15% { height: 12px; width: 18px; left: 1px; }
+    25% { height: 6px; width: 22px; left: -1px; }
+    35% { height: 10px; width: 16px; left: 2px; }
+    45% { height: 7px; width: 20px; left: 0; }
+    55% { height: 11px; width: 17px; left: 1.5px; }
+    65% { height: 8px; width: 20px; left: 0; opacity: 0.8; }
+  }
+
+  /* ─── Thinking dots (beneath the icon) ─── */
+  .thinking-indicator {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  .thinking-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.3;
+    animation: thinkPulse 1.5s ease-in-out infinite;
+  }
+  .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+  .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes thinkPulse {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  /* ─── WORDMARK ─── */
+  .wordmark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .agent-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--mint) 50%, var(--accent) 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 5s ease-in-out infinite;
+  }
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .agent-tagline {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 300;
+  }
+
+  /* ─── STATUS STATES showcase ─── */
+  .states-grid {
+    display: flex;
+    gap: 32px;
+    margin-top: 64px;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.8s;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .state-card {
+    background: var(--surface);
+    border: 1px solid rgba(79, 140, 255, 0.08);
+    border-radius: 16px;
+    padding: 28px 24px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-width: 150px;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+  .state-card:hover {
+    border-color: rgba(79, 140, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  /* Mini agent icons for states */
+  .mini-agent {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #1a2744, #0f1b33);
+    box-shadow: 0 0 0 1px rgba(79, 140, 255, 0.12);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .mini-face { position: relative; width: 24px; height: 16px; }
+  .mini-eyes { display: flex; gap: 8px; justify-content: center; margin-bottom: 4px; }
+  .mini-eye {
+    width: 4.5px; height: 4.5px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+  .mini-mouth {
+    width: 10px; height: 5px;
+    margin: 0 auto;
+    border-bottom: 1.5px solid var(--mint);
+    border-radius: 0 0 6px 6px;
+    filter: drop-shadow(0 0 4px var(--mint));
+  }
+
+  /* Idle state */
+  .state-idle .mini-eye {
+    animation: blink 4s ease-in-out infinite;
+  }
+
+  /* Thinking state */
+  .state-thinking .mini-agent::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1.5px solid transparent;
+    border-top-color: var(--accent-warm);
+    animation: orbitSpin 2s linear infinite;
+  }
+  .state-thinking .mini-eye {
+    animation: thinkEyes 2s ease-in-out infinite;
+  }
+  @keyframes thinkEyes {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(1.5px) translateY(-0.5px); }
+    75% { transform: translateX(-1.5px) translateY(-0.5px); }
+  }
+  .state-thinking .mini-mouth {
+    border-bottom-color: var(--accent-warm);
+    filter: drop-shadow(0 0 4px var(--accent-warm));
+    width: 6px;
+    height: 3px;
+    border-radius: 50%;
+  }
+
+  /* Typing / speaking state */
+  .state-typing .mini-mouth {
+    animation: miniTalk 0.6s ease-in-out infinite;
+  }
+  @keyframes miniTalk {
+    0%, 100% { height: 5px; }
+    50% { height: 8px; }
+  }
+  .state-typing .mini-agent::before {
+    content: '';
+    position: absolute;
+    right: -4px; bottom: 2px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--mint);
+    opacity: 0;
+    animation: typingPop 1.2s ease-in-out infinite;
+  }
+  @keyframes typingPop {
+    0%, 100% { opacity: 0; transform: scale(0.5) translate(0, 0); }
+    50% { opacity: 0.6; transform: scale(1) translate(4px, -6px); }
+  }
+
+  /* Success state */
+  .state-success .mini-eye {
+    height: 2px;
+    transform: translateY(1px);
+  }
+  .state-success .mini-mouth {
+    border-bottom-color: var(--mint);
+    width: 12px;
+    height: 6px;
+  }
+  .state-success .mini-agent {
+    box-shadow: 0 0 0 1px rgba(0, 228, 160, 0.2), 0 0 20px rgba(0, 228, 160, 0.08);
+  }
+
+  /* Error state */
+  .state-error .mini-eye {
+    background: var(--coral);
+    box-shadow: 0 0 8px var(--coral);
+    animation: errorPulse 1s ease-in-out infinite;
+  }
+  .state-error .mini-mouth {
+    border-bottom: none;
+    border-top: 1.5px solid var(--coral);
+    border-radius: 6px 6px 0 0;
+    filter: drop-shadow(0 0 4px var(--coral));
+    margin-top: 2px;
+  }
+  @keyframes errorPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .state-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  /* ─── Chat Preview ─── */
+  .chat-preview {
+    margin-top: 56px;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 1.1s;
+  }
+  .chat-bubble {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid rgba(79, 140, 255, 0.06);
+    border-radius: 18px;
+    padding: 16px 20px;
+    max-width: 380px;
+  }
+  .chat-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #1a2744, #0f1b33);
+    box-shadow: 0 0 0 1px rgba(79, 140, 255, 0.15);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .chat-face { position: relative; width: 16px; height: 10px; }
+  .chat-eyes { display: flex; gap: 5px; justify-content: center; margin-bottom: 3px; }
+  .chat-eye {
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+    animation: blink 4s ease-in-out infinite;
+  }
+  .chat-mouth-el {
+    width: 7px; height: 3px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--mint);
+    border-radius: 0 0 4px 4px;
+    filter: drop-shadow(0 0 3px var(--mint));
+    animation: miniTalk 0.8s ease-in-out infinite;
+  }
+  .chat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .chat-sender {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+  .chat-text {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--text);
+    font-weight: 300;
+  }
+  .chat-text .typed {
+    border-right: 2px solid var(--accent);
+    animation: cursorBlink 0.8s step-end infinite;
+  }
+  @keyframes cursorBlink {
+    0%, 100% { border-color: var(--accent); }
+    50% { border-color: transparent; }
+  }
+
+  /* ─── Utilities ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+  <div class="ambient"></div>
+
+  <div class="showcase">
+    <div class="section-label">EDA Developer Hub — Intelligent Agent</div>
+
+    <!-- Main agent icon -->
+    <div class="agent-container">
+      <div class="agent-icon">
+        <div class="orbit-ring"></div>
+        <div class="orbit-ring-2"></div>
+        <div class="agent-core">
+          <div class="face">
+            <div class="eyes">
+              <div class="eye left"></div>
+              <div class="eye right"></div>
+            </div>
+            <div class="mouth">
+              <div class="mouth-line"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="thinking-indicator">
+        <div class="thinking-dot"></div>
+        <div class="thinking-dot"></div>
+        <div class="thinking-dot"></div>
+      </div>
+      <div class="wordmark">
+        <div class="agent-name">NEXUS</div>
+        <div class="agent-tagline">Enterprise Data Analytics Agent</div>
+      </div>
+    </div>
+
+    <!-- States -->
+    <div class="states-grid">
+      <div class="state-card state-idle">
+        <div class="mini-agent">
+          <div class="mini-face">
+            <div class="mini-eyes">
+              <div class="mini-eye"></div>
+              <div class="mini-eye"></div>
+            </div>
+            <div class="mini-mouth"></div>
+          </div>
+        </div>
+        <span class="state-label">Idle</span>
+      </div>
+
+      <div class="state-card state-thinking">
+        <div class="mini-agent">
+          <div class="mini-face">
+            <div class="mini-eyes">
+              <div class="mini-eye"></div>
+              <div class="mini-eye"></div>
+            </div>
+            <div class="mini-mouth"></div>
+          </div>
+        </div>
+        <span class="state-label">Thinking</span>
+      </div>
+
+      <div class="state-card state-typing">
+        <div class="mini-agent">
+          <div class="mini-face">
+            <div class="mini-eyes">
+              <div class="mini-eye"></div>
+              <div class="mini-eye"></div>
+            </div>
+            <div class="mini-mouth"></div>
+          </div>
+        </div>
+        <span class="state-label">Responding</span>
+      </div>
+
+      <div class="state-card state-success">
+        <div class="mini-agent">
+          <div class="mini-face">
+            <div class="mini-eyes">
+              <div class="mini-eye"></div>
+              <div class="mini-eye"></div>
+            </div>
+            <div class="mini-mouth"></div>
+          </div>
+        </div>
+        <span class="state-label">Complete</span>
+      </div>
+
+      <div class="state-card state-error">
+        <div class="mini-agent">
+          <div class="mini-face">
+            <div class="mini-eyes">
+              <div class="mini-eye"></div>
+              <div class="mini-eye"></div>
+            </div>
+            <div class="mini-mouth"></div>
+          </div>
+        </div>
+        <span class="state-label">Error</span>
+      </div>
+    </div>
+
+    <!-- Chat preview -->
+    <div class="chat-preview">
+      <div class="chat-bubble">
+        <div class="chat-avatar">
+          <div class="chat-face">
+            <div class="chat-eyes">
+              <div class="chat-eye"></div>
+              <div class="chat-eye"></div>
+            </div>
+            <div class="chat-mouth-el"></div>
+          </div>
+        </div>
+        <div class="chat-content">
+          <span class="chat-sender">NEXUS</span>
+          <span class="chat-text">Analyzing your dataset schema. Found 3 optimization opportunities<span class="typed"></span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
