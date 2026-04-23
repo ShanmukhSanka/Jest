@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ThinkingIndicator — 25 variants</title>
+
+<style>
+/* =========================================================
+   ThinkingIndicator — 25 themed loading micro-animations
+   Drop-in: copy everything between BEGIN/END into your app.
+   Palette is driven by CSS variables on :root — override to
+   match any theme.
+   ========================================================= */
+
+/* ----- BEGIN ThinkingIndicator styles ----- */
+
+.ti-root {
+  --ti-ink:   #334155;
+  --ti-mute:  #94A3B8;
+  --ti-line:  #CBD5E1;
+  --ti-soft:  #E2E8F0;
+  --ti-bg:    #F8FAFC;
+  --ti-accent:#F97316;
+  --ti-accent-soft:#FED7AA;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  font-size: 13.5px;
+  color: var(--ti-ink);
+  line-height: 1;
+  user-select: none;
+}
+
+.ti-stage {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ti-label {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.005em;
+}
+.ti-label::after {
+  content: '';
+  display: inline-block;
+  width: 1.1em;
+  text-align: left;
+  animation: ti-dots 1.4s steps(4, end) infinite;
+}
+@keyframes ti-dots {
+  0%   { content: ''; }
+  25%  { content: '.'; }
+  50%  { content: '..'; }
+  75%  { content: '...'; }
+  100% { content: ''; }
+}
+
+/* Smooth crossfade when swapping variants */
+.ti-stage > * {
+  animation-fill-mode: both;
+}
+.ti-stage.fading > * {
+  opacity: 0;
+  transition: opacity 0.18s ease-out;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .ti-root * {
+    animation-duration: 2.5s !important;
+    animation-timing-function: ease !important;
+  }
+}
+
+/* =========  1. Cooking  ========= */
+.ti-cook { position: relative; width: 32px; height: 32px; }
+.ti-cook__pot {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: 16px;
+  background: var(--ti-ink);
+  border-radius: 2px 2px 5px 5px;
+}
+.ti-cook__pot::before,
+.ti-cook__pot::after {
+  content: ''; position: absolute; top: 4px;
+  width: 5px; height: 3px;
+  background: var(--ti-ink);
+  border-radius: 2px;
+}
+.ti-cook__pot::before { left: -5px; }
+.ti-cook__pot::after  { right: -5px; }
+.ti-cook__steam {
+  position: absolute; bottom: 18px; width: 3px; height: 12px;
+  border-radius: 2px;
+  background: var(--ti-line);
+  transform-origin: center bottom;
+  animation: ti-steam 1.8s ease-out infinite;
+}
+.ti-cook__steam:nth-child(2) { left: 7px;  animation-delay: 0s; }
+.ti-cook__steam:nth-child(3) { left: 15px; animation-delay: 0.4s; }
+.ti-cook__steam:nth-child(4) { left: 23px; animation-delay: 0.8s; }
+@keyframes ti-steam {
+  0%   { transform: translateY(6px) scaleY(0.4); opacity: 0; }
+  30%  { opacity: 0.9; }
+  100% { transform: translateY(-10px) scaleY(1.2) skewX(-8deg); opacity: 0; }
+}
+
+/* =========  2. Experimenting  ========= */
+.ti-exp { position: relative; width: 40px; height: 40px; }
+.ti-exp__tube {
+  position: absolute; bottom: 2px;
+  width: 10px; height: 28px;
+  border: 1.5px solid var(--ti-ink);
+  border-top: none;
+  border-radius: 0 0 5px 5px;
+  overflow: hidden;
+  background: var(--ti-bg);
+}
+.ti-exp__tube--a { left: 6px; }
+.ti-exp__tube--b { left: 22px; }
+.ti-exp__liquid {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 50%;
+  animation: ti-liq-shift 2.2s ease-in-out infinite;
+}
+.ti-exp__tube--a .ti-exp__liquid { background: var(--ti-accent); }
+.ti-exp__tube--b .ti-exp__liquid { background: var(--ti-mute); animation-delay: -1.1s; }
+.ti-exp__bubble {
+  position: absolute; left: 50%; bottom: 2px;
+  width: 3px; height: 3px; border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  transform: translateX(-50%);
+  animation: ti-bub 1.6s ease-in infinite;
+}
+.ti-exp__tube--b .ti-exp__bubble { animation-delay: -0.8s; }
+@keyframes ti-liq-shift {
+  0%, 100% { background-color: var(--ti-accent); }
+  50%      { background-color: #60A5FA; }
+}
+@keyframes ti-bub {
+  0%   { transform: translate(-50%, 0) scale(0.6); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translate(-50%, -14px) scale(1); opacity: 0; }
+}
+
+/* =========  3. Swimming  ========= */
+.ti-swim { position: relative; width: 48px; height: 28px; }
+.ti-swim__wave {
+  position: absolute; left: 0; right: 0; bottom: 4px;
+  height: 10px;
+}
+.ti-swim__wave::before,
+.ti-swim__wave::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 10px 8px, transparent 5px, var(--ti-line) 5px, var(--ti-line) 6px, transparent 6px),
+              radial-gradient(circle at 30px 8px, transparent 5px, var(--ti-line) 5px, var(--ti-line) 6px, transparent 6px);
+  animation: ti-wave 1.8s linear infinite;
+}
+.ti-swim__wave::after { opacity: 0.4; animation-delay: -0.9s; }
+.ti-swim__body {
+  position: absolute; left: 14px; top: 4px;
+  width: 14px; height: 6px;
+  background: var(--ti-ink);
+  border-radius: 3px;
+  animation: ti-swim-body 0.9s ease-in-out infinite;
+}
+.ti-swim__body::before {
+  content: ''; position: absolute; left: 10px; top: -3px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--ti-ink);
+}
+.ti-swim__arm {
+  position: absolute; left: 10px; top: 5px;
+  width: 12px; height: 2px;
+  background: var(--ti-ink);
+  border-radius: 1px;
+  transform-origin: 0% 50%;
+  animation: ti-swim-arm 0.9s ease-in-out infinite;
+}
+@keyframes ti-swim-body {
+  0%,100% { transform: translateY(0) rotate(-4deg); }
+  50%     { transform: translateY(-1px) rotate(4deg); }
+}
+@keyframes ti-swim-arm {
+  0%   { transform: rotate(40deg); }
+  50%  { transform: rotate(-150deg); }
+  100% { transform: rotate(40deg); }
+}
+@keyframes ti-wave {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-20px); }
+}
+
+/* =========  4. Diving  ========= */
+.ti-dive { position: relative; width: 44px; height: 44px; }
+.ti-dive__figure {
+  position: absolute; left: 4px; top: 2px;
+  width: 3px; height: 12px;
+  background: var(--ti-ink);
+  border-radius: 2px;
+  transform-origin: 50% 100%;
+  animation: ti-dive-arc 2.2s ease-in-out infinite;
+}
+.ti-dive__figure::before {
+  content: ''; position: absolute; left: -1px; top: -4px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--ti-ink);
+}
+.ti-dive__ripple {
+  position: absolute; left: 50%; top: 30px;
+  width: 4px; height: 4px;
+  border: 1.5px solid var(--ti-accent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ti-ripple 2.2s ease-out infinite;
+  animation-delay: 1.1s;
+}
+.ti-dive__ripple--b {
+  border-color: var(--ti-mute);
+  animation-delay: 1.4s;
+}
+.ti-dive__water {
+  position: absolute; left: 0; right: 0; top: 30px;
+  height: 1.5px; background: var(--ti-line);
+  border-radius: 1px;
+}
+@keyframes ti-dive-arc {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  45%  { transform: translate(30px, 20px) rotate(120deg); opacity: 1; }
+  55%  { opacity: 0; }
+  56%  { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  70%  { opacity: 1; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+@keyframes ti-ripple {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  5%   { opacity: 1; }
+  50%  { transform: translate(-50%, -50%) scale(6); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* =========  5. Jumping  ========= */
+.ti-jump { position: relative; width: 32px; height: 40px; }
+.ti-jump__shape {
+  position: absolute; left: 50%; bottom: 4px;
+  width: 14px; height: 14px;
+  background: var(--ti-accent);
+  border-radius: 30%;
+  transform: translateX(-50%);
+  animation: ti-jump-body 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+.ti-jump__shadow {
+  position: absolute; left: 50%; bottom: 2px;
+  width: 16px; height: 3px;
+  background: var(--ti-line);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  animation: ti-jump-shadow 1.2s ease-in-out infinite;
+}
+@keyframes ti-jump-body {
+  0%,100% { transform: translateX(-50%) translateY(0)    scale(1.25, 0.75); }
+  15%     { transform: translateX(-50%) translateY(-4px) scale(0.85, 1.2); }
+  50%     { transform: translateX(-50%) translateY(-22px) scale(1, 1.1); }
+  85%     { transform: translateX(-50%) translateY(-4px) scale(0.9, 1.15); }
+}
+@keyframes ti-jump-shadow {
+  0%,100% { transform: translateX(-50%) scale(1); opacity: 0.7; }
+  50%     { transform: translateX(-50%) scale(0.5); opacity: 0.3; }
+}
+
+/* =========  6. Running  ========= */
+.ti-run { position: relative; width: 44px; height: 32px; }
+.ti-run__body {
+  position: absolute; left: 16px; top: 4px;
+  width: 10px; height: 12px;
+  background: var(--ti-ink);
+  border-radius: 3px;
+  animation: ti-run-bob 0.5s ease-in-out infinite;
+}
+.ti-run__body::before {
+  content: ''; position: absolute; left: 2px; top: -7px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ti-ink);
+}
+.ti-run__leg {
+  position: absolute; top: 14px; width: 2px; height: 9px;
+  background: var(--ti-ink);
+  border-radius: 1px;
+  transform-origin: 50% 0%;
+}
+.ti-run__leg--a { left: 18px; animation: ti-run-leg 0.5s ease-in-out infinite; }
+.ti-run__leg--b { left: 22px; animation: ti-run-leg 0.5s ease-in-out infinite reverse; }
+.ti-run__line {
+  position: absolute; left: 2px; width: 10px; height: 1.5px;
+  background: var(--ti-mute);
+  border-radius: 1px;
+  animation: ti-run-line 0.5s linear infinite;
+}
+.ti-run__line:nth-child(4) { top: 10px; animation-delay: 0s; }
+.ti-run__line:nth-child(5) { top: 16px; width: 6px; animation-delay: -0.2s; }
+@keyframes ti-run-bob {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-1.5px); }
+}
+@keyframes ti-run-leg {
+  0%,100% { transform: rotate(-35deg); }
+  50%     { transform: rotate(35deg); }
+}
+@keyframes ti-run-line {
+  0%   { transform: translateX(6px); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: translateX(-10px); opacity: 0; }
+}
+
+/* =========  7. Cycling  ========= */
+.ti-cycle { position: relative; width: 46px; height: 32px; }
+.ti-cycle__wheel {
+  position: absolute; bottom: 2px;
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--ti-ink);
+  border-radius: 50%;
+  animation: ti-spin 0.7s linear infinite;
+}
+.ti-cycle__wheel::before {
+  content: ''; position: absolute; inset: 3px;
+  background: linear-gradient(to right, var(--ti-ink) 0 1.5px, transparent 1.5px),
+              linear-gradient(to bottom, var(--ti-ink) 0 1.5px, transparent 1.5px);
+  background-position: center;
+  background-size: 100% 100%;
+}
+.ti-cycle__wheel--a { left: 2px; }
+.ti-cycle__wheel--b { right: 2px; }
+.ti-cycle__frame {
+  position: absolute; left: 11px; bottom: 9px;
+  width: 24px; height: 2px;
+  background: var(--ti-accent);
+  border-radius: 1px;
+  transform-origin: 0% 0%;
+  transform: rotate(-12deg);
+}
+.ti-cycle__seat {
+  position: absolute; left: 22px; bottom: 16px;
+  width: 6px; height: 2px;
+  background: var(--ti-ink);
+  border-radius: 1px;
+}
+@keyframes ti-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* =========  8. Dancing  ========= */
+.ti-dance { position: relative; width: 44px; height: 40px; }
+.ti-dance__floor {
+  position: absolute; left: 4px; right: 4px; bottom: 4px;
+  height: 1.5px;
+  background: var(--ti-line);
+  border-radius: 1px;
+}
+.ti-dance__spot {
+  /* disco-ball spotlight behind the figure */
+  position: absolute; left: 50%; top: 50%;
+  width: 30px; height: 30px;
+  margin: -15px 0 0 -15px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--ti-accent-soft) 0%, transparent 70%);
+  opacity: 0;
+  animation: ti-dance-spot 1.2s ease-in-out infinite;
+}
+.ti-dance__figure {
+  position: absolute; left: 50%; top: 6px;
+  width: 6px; height: 16px;
+  margin-left: -3px;
+  background: var(--ti-ink);
+  border-radius: 2px;
+  transform-origin: 50% 100%;
+  animation: ti-dance-sway 1.2s ease-in-out infinite;
+}
+.ti-dance__figure::before {
+  /* head */
+  content: ''; position: absolute; left: 0; top: -6px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ti-ink);
+}
+.ti-dance__arm {
+  /* raised arms */
+  position: absolute; top: 10px;
+  width: 10px; height: 2px;
+  background: var(--ti-ink);
+  border-radius: 1px;
+  animation: ti-dance-arm 1.2s ease-in-out infinite;
+}
+.ti-dance__arm--l {
+  left: 12px;
+  transform-origin: 100% 50%;
+}
+.ti-dance__arm--r {
+  right: 12px;
+  transform-origin: 0% 50%;
+  animation-direction: reverse;
+}
+@keyframes ti-dance-sway {
+  0%,100% { transform: rotate(-5deg); }
+  50%     { transform: rotate(5deg); }
+}
+@keyframes ti-dance-arm {
+  0%,100% { transform: rotate(-30deg); }
+  50%     { transform: rotate(-60deg); }
+}
+@keyframes ti-dance-spot {
+  0%,100% { opacity: 0.4; transform: scale(0.9); }
+  50%     { opacity: 1;   transform: scale(1.1); }
+}
+
+/* =========  9. Thinking  ========= */
+.ti-think { position: relative; width: 36px; height: 36px; }
+.ti-think__head {
+  position: absolute; left: 4px; bottom: 2px;
+  width: 14px; height: 14px;
+  border: 1.5px solid var(--ti-ink);
+  border-radius: 50%;
+  background: var(--ti-bg);
+}
+.ti-think__head::before {
+  content: ''; position: absolute; left: 7px; top: 5px;
+  width: 2px; height: 2px; border-radius: 50%;
+  background: var(--ti-ink);
+  box-shadow: -4px 0 0 var(--ti-ink);
+}
+.ti-think__bubble {
+  position: absolute;
+  background: var(--ti-accent-soft);
+  border-radius: 50%;
+  animation: ti-bub-pulse 1.4s ease-in-out infinite;
+}
+.ti-think__bubble:nth-child(2) { right: 10px; bottom: 16px; width: 4px;  height: 4px; animation-delay: 0s; }
+.ti-think__bubble:nth-child(3) { right: 4px;  bottom: 22px; width: 6px;  height: 6px; animation-delay: 0.2s; }
+.ti-think__bubble:nth-child(4) { right: 0;    bottom: 30px; width: 8px;  height: 8px; animation-delay: 0.4s; background: var(--ti-accent); }
+@keyframes ti-bub-pulse {
+  0%,100% { transform: scale(0.8); opacity: 0.6; }
+  50%     { transform: scale(1.2); opacity: 1; }
+}
+
+/* =========  10. Brewing  ========= */
+.ti-brew { position: relative; width: 36px; height: 40px; }
+.ti-brew__cup {
+  position: absolute; left: 6px; bottom: 2px;
+  width: 22px; height: 16px;
+  background: var(--ti-ink);
+  border-radius: 2px 2px 8px 8px;
+}
+.ti-brew__cup::after {
+  content: ''; position: absolute; right: -6px; top: 3px;
+  width: 6px; height: 8px;
+  border: 2px solid var(--ti-ink);
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+}
+.ti-brew__surface {
+  position: absolute; left: 2px; right: 2px; top: 2px;
+  height: 2px;
+  background: var(--ti-accent);
+  border-radius: 1px;
+}
+.ti-brew__swirl {
+  position: absolute; left: 50%; top: 2px;
+  width: 8px; height: 12px;
+  border: 1.5px solid var(--ti-line);
+  border-radius: 50%;
+  border-color: var(--ti-line) transparent transparent var(--ti-line);
+  transform-origin: center 8px;
+  animation: ti-swirl 1.6s ease-in-out infinite;
+}
+@keyframes ti-swirl {
+  0%   { transform: translate(-50%, 0) rotate(0deg) scale(0.5); opacity: 0; }
+  30%  { opacity: 0.9; }
+  100% { transform: translate(-50%, -16px) rotate(180deg) scale(1.2); opacity: 0; }
+}
+
+/* =========  11. Painting  ========= */
+.ti-paint { position: relative; width: 48px; height: 36px; }
+.ti-paint__canvas {
+  position: absolute; inset: 4px;
+  background: var(--ti-bg);
+  border: 1.5px solid var(--ti-line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.ti-paint__stroke {
+  position: absolute; left: 2px; top: 50%;
+  width: 36px; height: 4px;
+  background: var(--ti-accent);
+  border-radius: 2px;
+  transform-origin: 0% 50%;
+  transform: translateY(-50%) scaleX(0);
+  animation: ti-paint-stroke 2s ease-in-out infinite;
+}
+.ti-paint__brush {
+  position: absolute; top: 50%;
+  width: 10px; height: 3px;
+  background: var(--ti-ink);
+  border-radius: 1px 3px 3px 1px;
+  transform: translateY(-50%);
+  animation: ti-paint-brush 2s ease-in-out infinite;
+}
+.ti-paint__brush::before {
+  content: ''; position: absolute; left: -3px; top: -1px;
+  width: 3px; height: 5px;
+  background: var(--ti-accent);
+  border-radius: 1px;
+}
+@keyframes ti-paint-stroke {
+  0%   { transform: translateY(-50%) scaleX(0); }
+  60%  { transform: translateY(-50%) scaleX(1); }
+  70%  { transform: translateY(-50%) scaleX(1); opacity: 1; }
+  100% { transform: translateY(-50%) scaleX(1); opacity: 0; }
+}
+@keyframes ti-paint-brush {
+  0%   { transform: translate(2px, -50%); }
+  60%  { transform: translate(36px, -50%); }
+  70%  { transform: translate(36px, -50%); opacity: 1; }
+  100% { transform: translate(36px, -50%); opacity: 0; }
+}
+
+/* =========  12. Writing  ========= */
+.ti-write { position: relative; width: 48px; height: 32px; }
+.ti-write__line {
+  position: absolute; left: 4px; right: 4px; bottom: 8px;
+  height: 1.5px;
+  background: var(--ti-line);
+  border-radius: 1px;
+}
+.ti-write__ink {
+  position: absolute; left: 4px; bottom: 8px;
+  width: 34px; height: 1.5px;
+  background: var(--ti-accent);
+  border-radius: 1px;
+  transform-origin: 0% 50%;
+  transform: scaleX(0);
+  animation: ti-ink 2.5s ease-in-out infinite;
+}
+.ti-write__pen {
+  position: absolute; bottom: 8px;
+  width: 3px; height: 18px;
+  background: var(--ti-ink);
+  border-radius: 1px;
+  transform-origin: 50% 100%;
+  animation: ti-pen 2.5s ease-in-out infinite;
+}
+.ti-write__pen::before {
+  content: ''; position: absolute; left: -0.5px; bottom: -3px;
+  border: 2px solid transparent;
+  border-top-color: var(--ti-ink);
+}
+@keyframes ti-pen {
+  0%   { transform: translateX(4px) rotate(-18deg); }
+  50%  { transform: translateX(36px) rotate(12deg); }
+  60%  { transform: translateX(36px) rotate(12deg); opacity: 1; }
+  70%  { transform: translateX(4px)  rotate(-18deg); opacity: 0; }
+  80%  { transform: translateX(4px)  rotate(-18deg); opacity: 1; }
+  100% { transform: translateX(4px)  rotate(-18deg); }
+}
+@keyframes ti-ink {
+  0%   { transform: scaleX(0); }
+  50%  { transform: scaleX(1); }
+  70%  { transform: scaleX(1); opacity: 1; }
+  80%  { transform: scaleX(0); opacity: 0; }
+  100% { transform: scaleX(0); }
+}
+
+/* =========  13. Digging  ========= */
+.ti-dig { position: relative; width: 40px; height: 36px; }
+.ti-dig__ground {
+  position: absolute; left: 0; right: 0; bottom: 2px;
+  height: 6px;
+  background: var(--ti-line);
+  border-radius: 1px;
+}
+.ti-dig__shovel {
+  position: absolute; left: 12px; top: 2px;
+  width: 3px; height: 22px;
+  background: var(--ti-ink);
+  border-radius: 1px;
+  transform-origin: 50% 0%;
+  animation: ti-dig-swing 1.2s ease-in-out infinite;
+}
+.ti-dig__shovel::after {
+  content: ''; position: absolute; left: -3px; bottom: -5px;
+  width: 9px; height: 8px;
+  background: var(--ti-accent);
+  clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 100%);
+}
+.ti-dig__dirt {
+  position: absolute; bottom: 6px;
+  width: 3px; height: 3px;
+  background: var(--ti-mute);
+  border-radius: 50%;
+  animation: ti-dirt 1.2s ease-out infinite;
+}
+.ti-dig__dirt:nth-child(3) { left: 22px; animation-delay: 0.1s; }
+.ti-dig__dirt:nth-child(4) { left: 28px; animation-delay: 0.25s; }
+.ti-dig__dirt:nth-child(5) { left: 32px; animation-delay: 0.4s;  }
+@keyframes ti-dig-swing {
+  0%,100% { transform: rotate(-15deg); }
+  50%     { transform: rotate(30deg); }
+}
+@keyframes ti-dirt {
+  0%   { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  25%  { opacity: 1; }
+  100% { transform: translate(8px, -10px) scale(1); opacity: 0; }
+}
+
+/* =========  14. Climbing  ========= */
+.ti-climb { position: relative; width: 30px; height: 44px; }
+.ti-climb__rail {
+  position: absolute; top: 2px; bottom: 2px;
+  width: 1.5px;
+  background: var(--ti-line);
+  border-radius: 1px;
+}
+.ti-climb__rail--a { left: 4px; }
+.ti-climb__rail--b { right: 4px; }
+.ti-climb__rung {
+  position: absolute; left: 4px; right: 4px;
+  height: 1.5px;
+  background: var(--ti-line);
+  border-radius: 1px;
+}
+.ti-climb__rung:nth-child(3) { top: 8px; }
+.ti-climb__rung:nth-child(4) { top: 20px; }
+.ti-climb__rung:nth-child(5) { top: 32px; }
+.ti-climb__figure {
+  position: absolute; left: 9px;
+  width: 12px; height: 14px;
+  animation: ti-climb-up 1.6s ease-in-out infinite;
+}
+.ti-climb__figure::before {
+  /* head */
+  content: ''; position: absolute; left: 3px; top: -2px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ti-accent);
+}
+.ti-climb__figure::after {
+  /* body */
+  content: ''; position: absolute; left: 4px; top: 4px;
+  width: 4px; height: 10px;
+  background: var(--ti-ink);
+  border-radius: 2px;
+  box-shadow:
+    /* left arm reaching up */  -4px -2px 0 -1px var(--ti-ink),
+    /* right arm bracing */      4px 1px 0 -1px var(--ti-ink);
+}
+@keyframes ti-climb-up {
+  0%   { transform: translateY(22px); }
+  40%  { transform: translateY(22px); }
+  50%  { transform: translateY(10px); }
+  90%  { transform: translateY(10px); }
+  91%  { transform: translateY(22px); opacity: 0; }
+  93%  { opacity: 1; }
+  100% { transform: translateY(22px); }
+}
+
+/* =========  15. Juggling  ========= */
+.ti-juggle { position: relative; width: 40px; height: 44px; }
+.ti-juggle__hands {
+  position: absolute; left: 0; right: 0; bottom: 4px;
+  height: 3px;
+}
+.ti-juggle__hands::before,
+.ti-juggle__hands::after {
+  content: ''; position: absolute; top: 0;
+  width: 6px; height: 3px;
+  background: var(--ti-ink);
+  border-radius: 2px;
+}
+.ti-juggle__hands::before { left: 4px; }
+.ti-juggle__hands::after  { right: 4px; }
+.ti-juggle__ball {
+  position: absolute; bottom: 7px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--ti-accent);
+  animation: ti-juggle 1.2s ease-in-out infinite;
+}
+.ti-juggle__ball--a { left: 8px;  animation-delay: 0s;    background: var(--ti-accent); }
+.ti-juggle__ball--b { left: 17px; animation-delay: -0.4s; background: var(--ti-ink);    }
+.ti-juggle__ball--c { left: 26px; animation-delay: -0.8s; background: var(--ti-mute);   }
+@keyframes ti-juggle {
+  0%    { transform: translate(0, 0); }
+  33%   { transform: translate(9px, -22px); }
+  66%   { transform: translate(18px, 0); }
+  67%   { transform: translate(0, 0); }
+  100%  { transform: translate(0, 0); }
+}
+
+/* =========  16. Surfing  ========= */
+.ti-surf { position: relative; width: 48px; height: 40px; }
+.ti-surf__wave {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: 28px;
+  background:
+    radial-gradient(ellipse at 0% 100%, var(--ti-accent-soft) 0%, var(--ti-accent-soft) 60%, transparent 61%),
+    radial-gradient(ellipse at 100% 100%, var(--ti-line) 0%, var(--ti-line) 60%, transparent 61%);
+  animation: ti-surf-wave 2.2s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+.ti-surf__figure {
+  position: absolute; left: 16px; top: 4px;
+  width: 4px; height: 12px;
+  background: var(--ti-ink);
+  border-radius: 2px;
+  animation: ti-surf-body 2.2s ease-in-out infinite;
+}
+.ti-surf__figure::before {
+  content: ''; position: absolute; left: -1px; top: -5px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ti-ink);
+}
+.ti-surf__board {
+  position: absolute; left: 10px; top: 16px;
+  width: 16px; height: 2px;
+  background: var(--ti-ink);
+  border-radius: 2px;
+  animation: ti-surf-body 2.2s ease-in-out infinite;
+}
+@keyframes ti-surf-wave {
+  0%,100% { transform: scale(1, 1); }
+  50%     { transform: scale(1.05, 0.9); }
+}
+@keyframes ti-surf-body {
+  0%,100% { transform: translateY(0) rotate(-6deg); }
+  50%     { transform: translateY(-2px) rotate(6deg); }
+}
+
+/* =========  17. Skating  ========= */
+.ti-skate { position: relative; width: 48px; height: 32px; }
+.ti-skate__ice {
+  position: absolute; left: 0; right: 0; bottom: 4px;
+  height: 1.5px;
+  background: var(--ti-line);
+  border-radius: 1px;
+}
+.ti-skate__figure {
+  position: absolute; top: 4px;
+  width: 6px; height: 14px;
+  background: var(--ti-ink);
+  border-radius: 2px;
+  animation: ti-skate 2s ease-in-out infinite;
+}
+.ti-skate__figure::before {
+  content: ''; position: absolute; left: 0; top: -6px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ti-ink);
+}
+.ti-skate__figure::after {
+  content: ''; position: absolute; left: -3px; bottom: -3px;
+  width: 12px; height: 2px;
+  background: var(--ti-accent);
+  border-radius: 1px;
+}
+.ti-skate__blur {
+  position: absolute; top: 16px; left: 4px; width: 20px; height: 1.5px;
+  background: linear-gradient(to left, var(--ti-accent), transparent);
+  border-radius: 1px;
+  transform-origin: 100% 50%;
+  transform: scaleX(0);
+  animation: ti-skate-blur 2s ease-in-out infinite;
+}
+@keyframes ti-skate {
+  0%,100% { transform: translateX(4px)  rotate(-4deg); }
+  50%     { transform: translateX(36px) rotate(4deg); }
+}
+@keyframes ti-skate-blur {
+  0%,100% { transform: translateX(0) scaleX(0); opacity: 0; }
+  40%     { transform: translateX(22px) scaleX(1); opacity: 0.8; }
+  50%     { transform: translateX(34px) scaleX(0); opacity: 0; }
+  90%     { transform: translateX(16px) scaleX(1); opacity: 0.8; }
+}
+
+/* =========  18. Flying  ========= */
+.ti-fly { position: relative; width: 48px; height: 36px; }
+.ti-fly__bird {
+  position: absolute; top: 12px;
+  width: 16px; height: 4px;
+  animation: ti-fly-path 3s linear infinite;
+}
+.ti-fly__bird__body {
+  position: absolute; left: 50%; top: 1px;
+  width: 4px; height: 2px;
+  background: var(--ti-ink);
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+.ti-fly__bird::before,
+.ti-fly__bird::after {
+  content: ''; position: absolute; top: 0;
+  width: 9px; height: 3px;
+  background: var(--ti-ink);
+  border-radius: 3px;
+}
+.ti-fly__bird::before {
+  left: -1px;
+  transform-origin: 100% 50%;
+  animation: ti-fly-wing-l 0.6s ease-in-out infinite;
+}
+.ti-fly__bird::after {
+  right: -1px;
+  transform-origin: 0% 50%;
+  animation: ti-fly-wing-r 0.6s ease-in-out infinite;
+}
+.ti-fly__trail {
+  position: absolute; top: 14px;
+  width: 10px; height: 1px;
+  background: linear-gradient(to left, var(--ti-accent), transparent);
+  border-radius: 1px;
+  animation: ti-fly-path 3s linear infinite;
+  animation-delay: -0.15s;
+  opacity: 0.5;
+}
+@keyframes ti-fly-path {
+  0%   { left: -18px; transform: translateY(0); }
+  50%  { transform: translateY(-8px); }
+  100% { left: 50px;  transform: translateY(0); }
+}
+@keyframes ti-fly-wing-l {
+  0%,100% { transform: rotate(25deg); }
+  50%     { transform: rotate(-35deg); }
+}
+@keyframes ti-fly-wing-r {
+  0%,100% { transform: rotate(-25deg); }
+  50%     { transform: rotate(35deg); }
+}
+
+/* =========  19. Reading  ========= */
+.ti-read { position: relative; width: 40px; height: 32px; }
+.ti-read__book {
+  position: absolute; left: 4px; top: 6px; right: 4px; bottom: 4px;
+  background: var(--ti-bg);
+  border: 1.5px solid var(--ti-ink);
+  border-radius: 2px;
+  perspective: 120px;
+}
+.ti-read__book::before {
+  content: ''; position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 1.5px; margin-left: -0.75px;
+  background: var(--ti-ink);
+}
+.ti-read__page {
+  position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 50%;
+  background: var(--ti-bg);
+  border-left: 1px solid var(--ti-ink);
+  transform-origin: left center;
+  animation: ti-page 2s ease-in-out infinite;
+}
+.ti-read__page::before,
+.ti-read__page::after {
+  content: ''; position: absolute; left: 2px; right: 3px;
+  height: 1px; background: var(--ti-mute); border-radius: 1px;
+}
+.ti-read__page::before { top: 5px; }
+.ti-read__page::after  { top: 10px; width: 50%; }
+@keyframes ti-page {
+  0%    { transform: rotateY(0deg); }
+  40%   { transform: rotateY(-160deg); }
+  50%   { transform: rotateY(-160deg); opacity: 0; }
+  51%   { transform: rotateY(0deg); opacity: 1; }
+  100%  { transform: rotateY(0deg); }
+}
+
+/* =========  20. Drawing  ========= */
+.ti-draw { position: relative; width: 44px; height: 44px; }
+.ti-draw__pad {
+  position: absolute; inset: 4px;
+  background: var(--ti-bg);
+  border: 1.5px solid var(--ti-line);
+  border-radius: 2px;
+}
+.ti-draw__scribble {
+  position: absolute; left: 50%; top: 50%;
+  width: 22px; height: 22px;
+  margin: -11px 0 0 -11px;
+  border: 2px solid transparent;
+  border-top-color: var(--ti-accent);
+  border-right-color: var(--ti-accent);
+  border-radius: 50%;
+  animation: ti-spin 1.4s linear infinite, ti-draw-fade 1.4s linear infinite;
+}
+.ti-draw__pencil {
+  position: absolute; left: 50%; top: 50%;
+  width: 2px; height: 12px;
+  background: var(--ti-ink);
+  border-radius: 1px;
+  transform-origin: 50% 100%;
+  animation: ti-pencil 1.4s linear infinite;
+}
+.ti-draw__pencil::before {
+  content: ''; position: absolute; left: -1px; top: -2px;
+  border: 2px solid transparent;
+  border-bottom-color: var(--ti-accent);
+}
+@keyframes ti-pencil {
+  0%   { transform: translate(9px, -17px) rotate(0deg); }
+  100% { transform: translate(9px, -17px) rotate(360deg); }
+}
+@keyframes ti-draw-fade {
+  0%,50%,100% { opacity: 1; }
+  75%         { opacity: 0.3; }
+}
+
+/* =========  21. Measuring  ========= */
+.ti-meas { position: relative; width: 48px; height: 32px; }
+.ti-meas__bar {
+  position: absolute; left: 4px; right: 4px; top: 50%;
+  height: 1.5px;
+  background: var(--ti-line);
+  border-radius: 1px;
+  transform: translateY(-50%);
+}
+.ti-meas__bar::before,
+.ti-meas__bar::after {
+  content: ''; position: absolute; top: -4px;
+  width: 1.5px; height: 10px;
+  background: var(--ti-line);
+  border-radius: 1px;
+}
+.ti-meas__bar::before { left: 0; }
+.ti-meas__bar::after  { right: 0; }
+.ti-meas__caliper {
+  position: absolute; left: 8px; top: 50%;
+  width: 32px; height: 18px;
+  border: 1.5px solid var(--ti-ink);
+  border-bottom: none;
+  border-radius: 3px 3px 0 0;
+  transform-origin: 50% 100%;
+  transform: translateY(-18px) scaleX(0.3);
+  animation: ti-calip 1.8s ease-in-out infinite;
+}
+.ti-meas__caliper::before {
+  content: ''; position: absolute; left: -1.5px; top: -3px; right: -1.5px;
+  height: 3px;
+  background: var(--ti-accent);
+  border-radius: 1px 1px 0 0;
+}
+@keyframes ti-calip {
+  0%,100% { transform: translateY(-18px) scaleX(0.3); }
+  50%     { transform: translateY(-18px) scaleX(1); }
+}
+
+/* =========  22. Polishing  ========= */
+.ti-polish { position: relative; width: 40px; height: 40px; }
+.ti-polish__surface {
+  position: absolute; inset: 4px;
+  background: var(--ti-line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.ti-polish__shine {
+  position: absolute; top: 0; bottom: 0; width: 60%;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.95) 50%, transparent 60%);
+  animation: ti-shine 2s ease-in-out infinite;
+}
+.ti-polish__cloth {
+  position: absolute; left: 50%; top: 50%;
+  width: 14px; height: 14px;
+  background: var(--ti-accent);
+  border-radius: 30%;
+  transform: translate(-50%, -50%);
+  animation: ti-polish-loop 1.6s linear infinite;
+}
+@keyframes ti-shine {
+  0%,100% { transform: translateX(-120%); }
+  50%     { transform: translateX(200%); }
+}
+@keyframes ti-polish-loop {
+  0%   { transform: translate(-120%, -50%); }
+  25%  { transform: translate(-50%, -120%); }
+  50%  { transform: translate(20%, -50%); }
+  75%  { transform: translate(-50%, 20%); }
+  100% { transform: translate(-120%, -50%); }
+}
+
+/* =========  23. Gardening  ========= */
+.ti-garden { position: relative; width: 32px; height: 44px; }
+.ti-garden__soil {
+  position: absolute; left: 0; right: 0; bottom: 2px;
+  height: 5px;
+  background: var(--ti-ink);
+  border-radius: 1px;
+}
+.ti-garden__stem {
+  position: absolute; left: 50%; bottom: 6px;
+  width: 2px; height: 26px;
+  margin-left: -1px;
+  background: var(--ti-accent);
+  border-radius: 1px;
+  transform-origin: bottom center;
+  transform: scaleY(0);
+  animation: ti-grow 3s ease-out infinite;
+}
+.ti-garden__leaf {
+  position: absolute; left: 50%; width: 7px; height: 4px;
+  background: var(--ti-accent);
+  border-radius: 100% 0 100% 0;
+  transform-origin: 0% 50%;
+  opacity: 0;
+  animation: ti-leaf 3s ease-out infinite;
+}
+.ti-garden__leaf--a { bottom: 20px; transform: translateX(1px) rotate(-30deg) scale(0); animation-delay: 0.8s; }
+.ti-garden__leaf--b { bottom: 24px; transform: translateX(-1px) rotate(210deg) scale(0); animation-delay: 1.3s; }
+.ti-garden__bud {
+  position: absolute; left: 50%; bottom: 30px;
+  width: 7px; height: 7px;
+  background: var(--ti-accent);
+  border-radius: 50% 50% 50% 0;
+  transform: translateX(-50%) rotate(-45deg) scale(0);
+  animation: ti-bud 3s ease-out infinite;
+  animation-delay: 1.8s;
+}
+@keyframes ti-grow {
+  0%   { transform: scaleY(0); opacity: 1; }
+  60%  { transform: scaleY(1); opacity: 1; }
+  90%  { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0; }
+}
+@keyframes ti-leaf {
+  0%,25%   { transform: translateX(1px) rotate(-30deg) scale(0); opacity: 0; }
+  40%      { transform: translateX(1px) rotate(-30deg) scale(1); opacity: 1; }
+  90%      { opacity: 1; }
+  100%     { opacity: 0; }
+}
+.ti-garden__leaf--b { animation-name: ti-leaf-b; }
+@keyframes ti-leaf-b {
+  0%,30%   { transform: translateX(-1px) rotate(210deg) scale(0); opacity: 0; }
+  45%      { transform: translateX(-1px) rotate(210deg) scale(1); opacity: 1; }
+  90%      { opacity: 1; }
+  100%     { opacity: 0; }
+}
+@keyframes ti-bud {
+  0%,55%  { transform: translateX(-50%) rotate(-45deg) scale(0); opacity: 0; }
+  70%     { transform: translateX(-50%) rotate(-45deg) scale(1); opacity: 1; }
+  90%     { opacity: 1; }
+  100%    { opacity: 0; }
+}
+
+/* =========  24. Hammering  ========= */
+.ti-hammer { position: relative; width: 40px; height: 40px; }
+.ti-hammer__nail {
+  position: absolute; left: 50%; bottom: 4px;
+  width: 4px; height: 10px;
+  background: var(--ti-ink);
+  border-radius: 0 0 2px 2px;
+  transform-origin: 50% 100%;
+  transform: translateX(-50%);
+  animation: ti-nail 1s ease-in-out infinite;
+}
+.ti-hammer__nail::before {
+  content: ''; position: absolute; left: -2px; top: -1px;
+  width: 8px; height: 2px;
+  background: var(--ti-ink);
+  border-radius: 1px;
+}
+.ti-hammer__tool {
+  position: absolute; left: 50%; top: 2px;
+  width: 3px; height: 18px;
+  background: var(--ti-ink);
+  border-radius: 1px;
+  transform-origin: 50% 100%;
+  animation: ti-swing 1s ease-in-out infinite;
+}
+.ti-hammer__tool::before {
+  content: ''; position: absolute; left: -5px; top: -3px;
+  width: 13px; height: 6px;
+  background: var(--ti-accent);
+  border-radius: 1px;
+}
+.ti-hammer__spark {
+  position: absolute; left: 50%; bottom: 14px;
+  width: 3px; height: 3px;
+  background: var(--ti-accent);
+  border-radius: 50%;
+  opacity: 0;
+  animation: ti-spark 1s ease-out infinite;
+}
+.ti-hammer__spark--a { animation-delay: 0s; }
+.ti-hammer__spark--b { animation-delay: 0s; }
+@keyframes ti-swing {
+  0%,100% { transform: translateX(-50%) rotate(-45deg); }
+  45%     { transform: translateX(-50%) rotate(0deg); }
+  50%     { transform: translateX(-50%) rotate(0deg); }
+  55%     { transform: translateX(-50%) rotate(-8deg); }
+}
+@keyframes ti-nail {
+  0%,45% { transform: translateX(-50%) scaleY(1); }
+  50%    { transform: translateX(-50%) scaleY(0.8); }
+  55%    { transform: translateX(-50%) scaleY(0.8); }
+  100%   { transform: translateX(-50%) scaleY(1); }
+}
+@keyframes ti-spark {
+  0%,45% { opacity: 0; transform: translate(-50%, 0) scale(0.3); }
+  50%    { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  70%    { opacity: 0; transform: translate(-150%, -6px) scale(0.4); }
+  100%   { opacity: 0; }
+}
+.ti-hammer__spark--b { animation-name: ti-spark-b; }
+@keyframes ti-spark-b {
+  0%,45% { opacity: 0; transform: translate(-50%, 0) scale(0.3); }
+  50%    { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  70%    { opacity: 0; transform: translate(50%, -6px) scale(0.4); }
+  100%   { opacity: 0; }
+}
+
+/* =========  25. Mixing  ========= */
+.ti-mix { position: relative; width: 36px; height: 36px; }
+.ti-mix__bowl {
+  position: absolute; left: 2px; right: 2px; bottom: 2px;
+  height: 22px;
+  background: var(--ti-bg);
+  border: 1.5px solid var(--ti-ink);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+.ti-mix__bowl::after {
+  content: ''; position: absolute; left: -2px; top: 8px; right: -2px;
+  height: 1.5px;
+  background: var(--ti-accent-soft);
+  border-radius: 1px;
+  animation: ti-mix-ripple 1s ease-in-out infinite;
+}
+.ti-mix__whisk {
+  position: absolute; left: 50%; top: 0;
+  width: 3px; height: 22px;
+  background: var(--ti-ink);
+  border-radius: 1px;
+  transform-origin: 50% 12px;
+  animation: ti-mix-spin 1.2s linear infinite;
+}
+.ti-mix__whisk::after {
+  content: ''; position: absolute; left: -4px; bottom: 0;
+  width: 11px; height: 7px;
+  border: 1.5px solid var(--ti-ink);
+  border-top: none;
+  border-radius: 0 0 50% 50%;
+}
+@keyframes ti-mix-spin {
+  0%   { transform: translateX(-50%) rotate(0deg); }
+  100% { transform: translateX(-50%) rotate(360deg); }
+}
+@keyframes ti-mix-ripple {
+  0%,100% { transform: translateY(0) scaleX(1); opacity: 0.6; }
+  50%     { transform: translateY(1px) scaleX(1.1); opacity: 1; }
+}
+
+/* ----- END ThinkingIndicator styles ----- */
+
+
+/* ======= Demo harness styles (can remove in prod) ======= */
+body {
+  margin: 0;
+  padding: 40px 32px 80px 32px;
+  background: #F8FAFC;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  color: #0F172A;
+}
+.h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: -0.01em; }
+.sub { color: #64748B; font-size: 14px; margin: 0 0 36px 0; }
+.demo-controls {
+  display: flex; gap: 12px; align-items: center;
+  padding: 14px 16px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  margin-bottom: 32px;
+}
+.demo-live {
+  flex: 1;
+  min-height: 50px;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  background: #0F172A;
+  border-radius: 8px;
+  color: #E2E8F0;
+}
+.demo-live .ti-root { --ti-ink: #E2E8F0; --ti-mute: #64748B; --ti-line: #475569; --ti-soft: #334155; --ti-bg: #1E293B; color: #E2E8F0; }
+.btn {
+  padding: 8px 14px; border-radius: 6px;
+  border: 1px solid #CBD5E1;
+  background: #FFFFFF;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  color: #0F172A;
+}
+.btn:hover { background: #F1F5F9; }
+.btn.primary { background: #0F172A; color: #FFFFFF; border-color: #0F172A; }
+.btn.primary:hover { background: #1E293B; }
+.grid-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: #94A3B8;
+  margin: 32px 0 12px 0;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.tile {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 16px 14px;
+  display: flex; align-items: center; gap: 12px;
+  min-height: 68px;
+}
+.tile .ti-label { font-weight: 500; font-size: 13px; }
+.tile-idx {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #CBD5E1;
+  margin-left: auto;
+}
+</style>
+
+</head>
+<body>
+
+<h1 class="h1">ThinkingIndicator — 25 themed loading animations</h1>
+<p class="sub">Pure CSS. Random pick per call, rotates every 3.5s. Drop <code>.ti-root</code> + <code>start/stop</code> into your app.</p>
+
+<!-- Live demo -->
+<div class="demo-controls">
+  <button class="btn primary" id="btn-start">▶ Start</button>
+  <button class="btn" id="btn-stop">■ Stop</button>
+  <button class="btn" id="btn-cycle">↻ Next</button>
+  <div class="demo-live" id="live"></div>
+</div>
+
+<!-- Full catalog preview -->
+<div class="grid-title">All 25 variants</div>
+<div class="grid" id="grid"></div>
+
+<script>
+/* ==============================================================
+   ThinkingIndicator — public API
+   --------------------------------------------------------------
+   const t = new ThinkingIndicator(hostEl, { rotateMs: 3500 });
+   t.start();  // pick random + start rotation
+   t.stop();   // hide + clear timer
+   t.next();   // force advance to next random (optional)
+   ============================================================== */
+
+const TI_VARIANTS = [
+  { key: 'cook',    label: 'Cooking',      markup: `<div class="ti-cook"><div class="ti-cook__pot"></div><div class="ti-cook__steam"></div><div class="ti-cook__steam"></div><div class="ti-cook__steam"></div></div>` },
+  { key: 'exp',     label: 'Experimenting',markup: `<div class="ti-exp"><div class="ti-exp__tube ti-exp__tube--a"><div class="ti-exp__liquid"></div><div class="ti-exp__bubble"></div></div><div class="ti-exp__tube ti-exp__tube--b"><div class="ti-exp__liquid"></div><div class="ti-exp__bubble"></div></div></div>` },
+  { key: 'swim',    label: 'Swimming',     markup: `<div class="ti-swim"><div class="ti-swim__wave"></div><div class="ti-swim__body"></div><div class="ti-swim__arm"></div></div>` },
+  { key: 'dive',    label: 'Diving',       markup: `<div class="ti-dive"><div class="ti-dive__figure"></div><div class="ti-dive__water"></div><div class="ti-dive__ripple"></div><div class="ti-dive__ripple ti-dive__ripple--b"></div></div>` },
+  { key: 'jump',    label: 'Jumping',      markup: `<div class="ti-jump"><div class="ti-jump__shadow"></div><div class="ti-jump__shape"></div></div>` },
+  { key: 'run',     label: 'Running',      markup: `<div class="ti-run"><div class="ti-run__body"></div><div class="ti-run__leg ti-run__leg--a"></div><div class="ti-run__leg ti-run__leg--b"></div><div class="ti-run__line"></div><div class="ti-run__line"></div></div>` },
+  { key: 'cycle',   label: 'Cycling',      markup: `<div class="ti-cycle"><div class="ti-cycle__wheel ti-cycle__wheel--a"></div><div class="ti-cycle__wheel ti-cycle__wheel--b"></div><div class="ti-cycle__frame"></div><div class="ti-cycle__seat"></div></div>` },
+  { key: 'dance',   label: 'Dancing',      markup: `<div class="ti-dance"><div class="ti-dance__floor"></div><div class="ti-dance__spot"></div><div class="ti-dance__figure"></div><div class="ti-dance__arm ti-dance__arm--l"></div><div class="ti-dance__arm ti-dance__arm--r"></div></div>` },
+  { key: 'think',   label: 'Thinking',     markup: `<div class="ti-think"><div class="ti-think__head"></div><div class="ti-think__bubble"></div><div class="ti-think__bubble"></div><div class="ti-think__bubble"></div></div>` },
+  { key: 'brew',    label: 'Brewing',      markup: `<div class="ti-brew"><div class="ti-brew__swirl"></div><div class="ti-brew__cup"><div class="ti-brew__surface"></div></div></div>` },
+  { key: 'paint',   label: 'Painting',     markup: `<div class="ti-paint"><div class="ti-paint__canvas"><div class="ti-paint__stroke"></div></div><div class="ti-paint__brush"></div></div>` },
+  { key: 'write',   label: 'Writing',      markup: `<div class="ti-write"><div class="ti-write__line"></div><div class="ti-write__ink"></div><div class="ti-write__pen"></div></div>` },
+  { key: 'dig',     label: 'Digging',      markup: `<div class="ti-dig"><div class="ti-dig__ground"></div><div class="ti-dig__shovel"></div><div class="ti-dig__dirt"></div><div class="ti-dig__dirt"></div><div class="ti-dig__dirt"></div></div>` },
+  { key: 'climb',   label: 'Climbing',     markup: `<div class="ti-climb"><div class="ti-climb__rail ti-climb__rail--a"></div><div class="ti-climb__rail ti-climb__rail--b"></div><div class="ti-climb__rung"></div><div class="ti-climb__rung"></div><div class="ti-climb__rung"></div><div class="ti-climb__figure"></div></div>` },
+  { key: 'juggle',  label: 'Juggling',     markup: `<div class="ti-juggle"><div class="ti-juggle__ball ti-juggle__ball--a"></div><div class="ti-juggle__ball ti-juggle__ball--b"></div><div class="ti-juggle__ball ti-juggle__ball--c"></div><div class="ti-juggle__hands"></div></div>` },
+  { key: 'surf',    label: 'Surfing',      markup: `<div class="ti-surf"><div class="ti-surf__wave"></div><div class="ti-surf__board"></div><div class="ti-surf__figure"></div></div>` },
+  { key: 'skate',   label: 'Skating',      markup: `<div class="ti-skate"><div class="ti-skate__ice"></div><div class="ti-skate__blur"></div><div class="ti-skate__figure"></div></div>` },
+  { key: 'fly',     label: 'Flying',       markup: `<div class="ti-fly"><div class="ti-fly__trail"></div><div class="ti-fly__bird"><div class="ti-fly__bird__body"></div></div></div>` },
+  { key: 'read',    label: 'Reading',      markup: `<div class="ti-read"><div class="ti-read__book"><div class="ti-read__page"></div></div></div>` },
+  { key: 'draw',    label: 'Drawing',      markup: `<div class="ti-draw"><div class="ti-draw__pad"></div><div class="ti-draw__scribble"></div><div class="ti-draw__pencil"></div></div>` },
+  { key: 'meas',    label: 'Measuring',    markup: `<div class="ti-meas"><div class="ti-meas__bar"></div><div class="ti-meas__caliper"></div></div>` },
+  { key: 'polish',  label: 'Polishing',    markup: `<div class="ti-polish"><div class="ti-polish__surface"><div class="ti-polish__shine"></div></div><div class="ti-polish__cloth"></div></div>` },
+  { key: 'garden',  label: 'Gardening',    markup: `<div class="ti-garden"><div class="ti-garden__soil"></div><div class="ti-garden__stem"></div><div class="ti-garden__leaf ti-garden__leaf--a"></div><div class="ti-garden__leaf ti-garden__leaf--b"></div><div class="ti-garden__bud"></div></div>` },
+  { key: 'hammer',  label: 'Hammering',    markup: `<div class="ti-hammer"><div class="ti-hammer__nail"></div><div class="ti-hammer__spark ti-hammer__spark--a"></div><div class="ti-hammer__spark ti-hammer__spark--b"></div><div class="ti-hammer__tool"></div></div>` },
+  { key: 'mix',     label: 'Mixing',       markup: `<div class="ti-mix"><div class="ti-mix__bowl"></div><div class="ti-mix__whisk"></div></div>` },
+];
+
+class ThinkingIndicator {
+  constructor(host, opts = {}) {
+    this.host = host;
+    this.rotateMs = opts.rotateMs ?? 3500;
+    this.lastIdx = -1;
+    this.timer = null;
+    this.active = false;
+    // Pre-build shell
+    this.host.innerHTML = `<div class="ti-root"><div class="ti-stage"></div><span class="ti-label"></span></div>`;
+    this.root   = this.host.querySelector('.ti-root');
+    this.stage  = this.host.querySelector('.ti-stage');
+    this.labelEl= this.host.querySelector('.ti-label');
+    this.root.style.display = 'none';
+  }
+  _pick() {
+    if (TI_VARIANTS.length <= 1) return 0;
+    let i = Math.floor(Math.random() * TI_VARIANTS.length);
+    if (i === this.lastIdx) i = (i + 1) % TI_VARIANTS.length;
+    this.lastIdx = i;
+    return i;
+  }
+  _render(idx) {
+    const v = TI_VARIANTS[idx];
+    // Fade out, swap, fade in (re-triggers CSS animations cleanly)
+    this.stage.classList.add('fading');
+    setTimeout(() => {
+      this.stage.innerHTML = v.markup;
+      this.labelEl.firstChild ? this.labelEl.firstChild.nodeValue = v.label
+                              : this.labelEl.appendChild(document.createTextNode(v.label));
+      this.stage.classList.remove('fading');
+    }, 180);
+  }
+  start() {
+    if (this.active) return;
+    this.active = true;
+    this.root.style.display = 'inline-flex';
+    this._render(this._pick());
+    clearInterval(this.timer);
+    this.timer = setInterval(() => {
+      if (!this.active) return;
+      this._render(this._pick());
+    }, this.rotateMs);
+  }
+  next() {
+    if (!this.active) return;
+    this._render(this._pick());
+  }
+  stop() {
+    this.active = false;
+    clearInterval(this.timer);
+    this.timer = null;
+    this.root.style.display = 'none';
+  }
+}
+
+/* ============== Demo harness (remove in production) ============== */
+
+const live = new ThinkingIndicator(document.getElementById('live'), { rotateMs: 3500 });
+document.getElementById('btn-start').addEventListener('click', () => live.start());
+document.getElementById('btn-stop').addEventListener('click',  () => live.stop());
+document.getElementById('btn-cycle').addEventListener('click', () => live.next());
+
+// Render every variant as a static tile for preview
+const grid = document.getElementById('grid');
+TI_VARIANTS.forEach((v, i) => {
+  const tile = document.createElement('div');
+  tile.className = 'tile';
+  tile.innerHTML = `
+    <div class="ti-root">
+      <div class="ti-stage">${v.markup}</div>
+      <span class="ti-label">${v.label}</span>
+    </div>
+    <span class="tile-idx">${String(i+1).padStart(2,'0')}</span>`;
+  grid.appendChild(tile);
+});
+
+// Auto-start the live preview
+live.start();
+</script>
+</body>
+</html>
